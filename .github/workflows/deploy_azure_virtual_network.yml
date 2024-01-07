@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   TF_LOG: INFO
+  WORK_DIR: ./azure_virtual_network
 
 jobs:
   terraform:
@@ -15,7 +16,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./azure_virtual_network
+        working-directory: ${{ WORK_DIR }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
