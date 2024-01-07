@@ -40,7 +40,26 @@ jobs:
         STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
         CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
       run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+  
+    # Run a terraform fmt -check to check if formatting is correct
+    - name: Terraform Fmt
+      id: fmt
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terraform fmt -check
 
+    # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
+    - name: Terraform Validate
+      id: validate
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terraform validate
 
     # Run a terraform plan for pull requests only
     - name: Terraform Plan
