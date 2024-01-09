@@ -39,6 +39,7 @@ resource "azurerm_role_assignment" "gh_actions" {
 }
 
 # Azure Storage Account
+
 resource "random_integer" "sa_num" {
   min = 10000
   max = 99999
