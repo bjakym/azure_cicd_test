@@ -21,10 +21,12 @@ jobs:
       with:
         python-version: '3.10' 
 
-    - name: List changed files  
+    - name: Get all changed files  
       id: files
       uses: masesgroup/retrieve-changed-files@v3
-    - run: |
+
+    - name: Do something with changed files
+      run: |
         for changed_file in ${{ steps.files.outputs.all }}; do
           echo "Do something with this ${changed_file}."
         done
