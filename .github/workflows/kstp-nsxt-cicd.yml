@@ -12,7 +12,7 @@ jobs:
         shell: bash
 
     outputs:
-      pushed_chg_files: ${{ steps.store.outputs.pushed_chg_files }}
+      pushed_chg_files: ${{ steps.transform.outputs.directories }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
