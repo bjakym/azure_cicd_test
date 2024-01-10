@@ -33,7 +33,7 @@ jobs:
       run: |
         pushed_chg_files=""
         for changed_file in ${{ steps.files.outputs.added_modifiles }}; do
-          if [ pushed_chg_files == "" ]; then
+          if [ "${pushed_chg_files}" == "" ]; then
             pushed_chg_files="\"${changed_file}\""
           else
             pushed_chg_files="${pushed_chg_files}, \"${changed_file}\""
