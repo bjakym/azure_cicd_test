@@ -39,6 +39,7 @@ jobs:
             folders+=($(dirname $f)); \
         done
         unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
 
     # - name: Store all changed files
