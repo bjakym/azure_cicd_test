@@ -50,8 +50,14 @@ jobs:
 
     steps:
 
-    - name: Retrieve pushed changed files
+    - name: Terraform Init
       run: |
         for changed_file in ${{ needs.get_changed_files.outputs.pushed_chg_files }}; do
-          echo "Do something with this ${changed_file}."
+          echo "Do terraform init with ${changed_file}."
+        done
+
+    - name: Terraform Validate
+      run: |
+        for changed_file in ${{ needs.get_changed_files.outputs.pushed_chg_files }}; do
+          echo "Do terraform validate with ${changed_file}."
         done
