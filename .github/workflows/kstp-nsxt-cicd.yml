@@ -34,7 +34,7 @@ jobs:
             if [ $? -eq 0 ]; then
               echo "Adding $(dirname $f) to folders"; \
               folders+=($(dirname $f)); \
-            else:
+            else
               echo "File ${f} skipped."
             fi
         done
