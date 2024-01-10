@@ -27,13 +27,19 @@ jobs:
     - name: Get all changed files  
       id: files
       uses: masesgroup/retrieve-changed-files@v3
-      with:
-        format: 'csv'
 
     - name: Store all changed files
       id: store
       run: |
-        echo "pushed_chg_files=\"${{ steps.files.outputs.added_modified }}\"" | sed -e 's/,/, /g' >> "$GITHUB_OUTPUT"
+        pushed_chg_files = ""
+        for changed_file in ${{ steps.files.outputs.added_modifiles }}; do
+          if [ pushed_chg_files == "" ]; then
+            pushed_chg_files="\"${changed_file}\""
+          else
+            pushed_chg_files="${pushed_chg_files}, \"${changed_file}\""
+          fi
+        done
+        echo "pushed_chg_files=${pushed_chg_files}" >> "$GITHUB_OUTPUT"
 
   # terraform-seq:
   #   name: 'Run Terraform Seq'
