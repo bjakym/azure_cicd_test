@@ -1,9 +1,9 @@
-name: 'Get changed files'
+name: 'Azure Terraform'
 
 on: [push, pull_request]
 
 jobs:
-  terraform:
+  get_changed_files:
     name: 'Get changed files'
     runs-on: ubuntu-latest
 
@@ -16,17 +16,36 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Install python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10' 
+    # - name: Install python
+    #   uses: actions/setup-python@v5
+    #   with:
+    #     python-version: '3.10' 
 
     - name: Get all changed files  
       id: files
       uses: masesgroup/retrieve-changed-files@v3
+      outputs:
+        push_chg_files: ${{ steps.files.outputs.added_modified }}
 
-    - name: Do something with changed files
+    # - name: Do something with changed files
+    #   run: |
+    #     for changed_file in ${{ steps.files.outputs.added_modified }}; do
+    #       echo "Do something with this ${changed_file}."
+    #     done
+
+  terraform:
+    name: 'Run Terraform'
+    needs: get_changed_files
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+
+    - name: Retrieve pushed changed files
       run: |
-        for changed_file in ${{ steps.files.outputs.all }}; do
+        for changed_file in ${{ needs.get_changed_files.outputs.push_chg_files }}; do
           echo "Do something with this ${changed_file}."
         done
