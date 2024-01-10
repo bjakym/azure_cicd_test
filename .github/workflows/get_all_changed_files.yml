@@ -24,8 +24,10 @@ jobs:
     - name: Get all changed files  
       id: files
       uses: masesgroup/retrieve-changed-files@v3
-      outputs:
-        push_chg_files: ${{ steps.files.outputs.added_modified }}
+
+    - name: Store all changed files
+      run: |
+        echo "pushed_chg_files=${{ steps.files.outputs.added_modified }}" >> "$GITHUB_OUTPUT"
 
     # - name: Do something with changed files
     #   run: |
@@ -46,6 +48,6 @@ jobs:
 
     - name: Retrieve pushed changed files
       run: |
-        for changed_file in ${{ needs.get_changed_files.outputs.push_chg_files }}; do
+        for changed_file in ${{ needs.get_changed_files.outputs.pushed_chg_files }}; do
           echo "Do something with this ${changed_file}."
         done
