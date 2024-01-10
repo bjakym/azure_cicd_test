@@ -11,6 +11,9 @@ jobs:
       run:
         shell: bash
 
+    outputs:
+      pushed_chg_files: ${{ steps.store.outputs.pushed_chg_files }}
+
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
@@ -26,6 +29,7 @@ jobs:
       uses: masesgroup/retrieve-changed-files@v3
 
     - name: Store all changed files
+      id: store
       run: |
         echo "pushed_chg_files=${{ steps.files.outputs.added_modified }}" >> "$GITHUB_OUTPUT"
 
