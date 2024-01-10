@@ -65,26 +65,26 @@ jobs:
   #         echo "Do terraform validate with ${changed_file}."
   #       done
 
-  terraform-par:
-    name: 'Run Terraform Par'
-    needs: get_changed_files
-    runs-on: ubuntu-latest
+  # terraform-par:
+  #   name: 'Run Terraform Par'
+  #   needs: get_changed_files
+  #   runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: bash
+  #   defaults:
+  #     run:
+  #       shell: bash
 
-    strategy:
-      matrix:
-        # tf_folder: ${{ needs.get_changed_files.outputs.pushed_chg_files }}
-        tf_folder: ["${{ needs.get_changed_files.outputs.pushed_chg_files }}"]
+  #   strategy:
+  #     matrix:
+  #       # tf_folder: ${{ needs.get_changed_files.outputs.pushed_chg_files }}
+  #       tf_folder: ["${{ needs.get_changed_files.outputs.pushed_chg_files }}"]
  
-    steps:
+  #   steps:
 
-    - name: Terraform Init
-      run: |
-        echo "Do terraform init with ${{ matrix.tf_folder }}"
+  #   - name: Terraform Init
+  #     run: |
+  #       echo "Do terraform init with ${{ matrix.tf_folder }}"
 
-    - name: Terraform Validate
-      run: |
-        echo "Do terraform validate with ${{ matrix.tf_folder }}"
+  #   - name: Terraform Validate
+  #     run: |
+  #       echo "Do terraform validate with ${{ matrix.tf_folder }}"
