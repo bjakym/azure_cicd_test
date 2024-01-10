@@ -4,19 +4,19 @@ on: [push, pull_request]
 
 jobs:
   job1:
-  runs-on: ubuntu-latest
-  outputs:
-    STRINGS: ${{ steps.set_matrix.STRINGS}}
-  steps:
-  - id: set-matrix
-    run: echo "STRINGS=[\"One String\", \"Another String\"]" >> $GITHUB_OUTPUT
+    runs-on: ubuntu-latest
+    outputs:
+      STRINGS: ${{ steps.set_matrix.STRINGS}}
+    steps:
+    - id: set-matrix
+      run: echo "STRINGS=[\"One String\", \"Another String\"]" >> $GITHUB_OUTPUT
 
   job2:
-  needs: job1
-  runs-on: ubuntu-latest
-  strategy:
-  matrix:
-    FUNCTIONS: ${{ needs.job1.outputs.STRINGS }}
-  steps:
-  - run: |
-      echo "Doing ..."
+    needs: job1
+    runs-on: ubuntu-latest
+    strategy:
+    matrix:
+      FUNCTIONS: ${{ needs.job1.outputs.STRINGS }}
+    steps:
+    - run: |
+        echo "Doing ..."
