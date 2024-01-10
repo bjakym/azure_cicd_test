@@ -33,7 +33,7 @@ jobs:
     - name: Store all changed files
       id: store
       run: |
-        echo "pushed_chg_files=[ ${{ steps.files.outputs.added_modified }} ]" >> "$GITHUB_OUTPUT"
+        echo "pushed_chg_files=[${{ steps.files.outputs.added_modified }}]" | sed -e 's/,/, /g' >> "$GITHUB_OUTPUT"
 
   # terraform-seq:
   #   name: 'Run Terraform Seq'
