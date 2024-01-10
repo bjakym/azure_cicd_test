@@ -1,9 +1,6 @@
 name: 'Azure Terraform'
 
-on:
-  workflow_dispatch:
-
-# on: [push, pull_request]
+on: [push, pull_request]
 
 jobs:
   get_changed_files:
@@ -31,18 +28,31 @@ jobs:
       id: files
       uses: masesgroup/retrieve-changed-files@v3
 
-    - name: Store all changed files
-      id: store
+    - name: Transform to directories
+      id: transform
+      continue-on-error: false
       run: |
-        pushed_chg_files=""
-        for changed_file in ${{ steps.files.outputs.added_modified }}; do
-          if [ "${pushed_chg_files}" == "" ]; then
-            pushed_chg_files="\"${changed_file}\""
-          else
-            pushed_chg_files="${pushed_chg_files}, \"${changed_file}\""
-          fi
+        folders=()
+        for f in ${{ steps.files.outputs.added_modified }}; \
+          do \
+            echo "Adding $(dirname $f) to folders"; \
+            folders+=($(dirname $f)); \
         done
-        echo "pushed_chg_files=${pushed_chg_files}" >> "$GITHUB_OUTPUT"
+        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
+
+    # - name: Store all changed files
+    #   id: store
+    #   run: |
+    #     pushed_chg_files=""
+    #     for changed_file in ${{ steps.files.outputs.added_modified }}; do
+    #       if [ "${pushed_chg_files}" == "" ]; then
+    #         pushed_chg_files="\"${changed_file}\""
+    #       else
+    #         pushed_chg_files="${pushed_chg_files}, \"${changed_file}\""
+    #       fi
+    #     done
+    #     echo "pushed_chg_files=${pushed_chg_files}" >> "$GITHUB_OUTPUT"
 
   # terraform-seq:
   #   name: 'Run Terraform Seq'
@@ -79,7 +89,7 @@ jobs:
     strategy:
       matrix:
         # tf_folder: ${{ needs.get_changed_files.outputs.pushed_chg_files }}
-        tf_folder: ["${{ needs.get_changed_files.outputs.pushed_chg_files }}"]
+        tf_folder: ["${{ needs.get_changed_files.outputs.directories }}"]
  
     steps:
 
