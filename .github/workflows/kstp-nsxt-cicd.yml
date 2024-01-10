@@ -39,6 +39,7 @@ jobs:
             pushed_chg_files="${pushed_chg_files}, \"${changed_file}\""
           fi
         done
+        echo "pushed_chg_files=${pushed_chg_files}"
         echo "pushed_chg_files=${pushed_chg_files}" >> "$GITHUB_OUTPUT"
 
   # terraform-seq:
