@@ -30,9 +30,12 @@ jobs:
         folders=()
         for f in ${{ steps.files.outputs.added_modified }}; \
           do \
-            echo "${f}" | grep -qi ".*tf"
-            echo "Adding $(dirname $f) to folders"; \
-            folders+=($(dirname $f)); \
+            if [ -z ${f##*.tf} ]; then
+              echo "Adding $(dirname $f) to folders"; \
+              folders+=($(dirname $f)); \
+            else
+              echo "File ${f} skipped."
+            fi
         done
         unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
