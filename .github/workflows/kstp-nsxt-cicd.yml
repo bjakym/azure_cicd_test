@@ -69,7 +69,7 @@ jobs:
 
     strategy:
       matrix:
-        tf_folder: ${{ needs.get_changed_files.outputs.pushed_chg_files }} 
+        tf_folder: ${{fromJson(needs.get_changed_files.outputs.pushed_chg_files)}} 
  
     steps:
 
