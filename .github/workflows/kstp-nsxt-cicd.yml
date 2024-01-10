@@ -31,12 +31,8 @@ jobs:
         for f in ${{ steps.files.outputs.added_modified }}; \
           do \
             echo "${f}" | egrep -qi ".*tf$"
-            if [ $? -eq 0 ]; then
-              echo "Adding $(dirname $f) to folders"; \
-              folders+=($(dirname $f)); \
-            else
-              echo "File ${f} skipped."
-            fi
+            echo "Adding $(dirname $f) to folders"; \
+            folders+=($(dirname $f)); \
         done
         unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
