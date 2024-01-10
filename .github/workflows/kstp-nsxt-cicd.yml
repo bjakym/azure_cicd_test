@@ -30,7 +30,7 @@ jobs:
         folders=()
         for f in ${{ steps.files.outputs.added_modified }}; \
           do \
-            echo "${f}"
+            echo "${f}" | grep -qi ".*tf$"
             echo "Adding $(dirname $f) to folders"; \
             folders+=($(dirname $f)); \
         done
