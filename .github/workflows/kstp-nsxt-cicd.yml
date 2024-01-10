@@ -44,7 +44,7 @@ jobs:
 
   terraform:
     name: 'Run Terraform Par'
-    needs: get_changed_files
+    needs: get_tf_folders
     runs-on: ubuntu-latest
 
     defaults:
@@ -54,7 +54,7 @@ jobs:
     strategy:
       matrix:
         # tf_folder: ${{ needs.get_changed_files.outputs.pushed_chg_files }}
-        tf_folder: ${{ fromJSON(needs.get_changed_files.outputs.directories) }}
+        tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
  
     steps:
 
