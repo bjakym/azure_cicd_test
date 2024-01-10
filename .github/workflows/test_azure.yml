@@ -9,7 +9,7 @@ jobs:
       STRINGS: ${{ steps.set_matrix.STRINGS}}
     steps:
     - id: set-matrix
-      run: echo "STRINGS=[\"One String\", \"Another String\"]" >> $GITHUB_OUTPUT
+      run: echo 'STRINGS=["One String", "Another String"]' >> $GITHUB_OUTPUT
 
   job2:
     needs: job1
