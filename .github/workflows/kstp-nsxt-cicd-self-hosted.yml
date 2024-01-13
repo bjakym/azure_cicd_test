@@ -9,7 +9,7 @@ jobs:
 
     defaults:
       run:
-        shell: "C:\\Program Files\\Git\\bin\\bash"
+        shell: bash
 
     outputs:
       directories: ${{ steps.transform.outputs.directories }}
