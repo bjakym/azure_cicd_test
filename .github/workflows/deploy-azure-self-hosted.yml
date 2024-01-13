@@ -1,0 +1,136 @@
+name: 'Azure Terraform Self-hosted'
+
+on: [push, pull_request]
+
+env:
+  TF_LOG: INFO
+
+jobs:
+  get_tf_folders:
+    name: 'Get Terraform folders'
+    runs-on: azure-cicd
+
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      directories: ${{ steps.transform.outputs.directories }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Get all changed files  
+      id: files
+      uses: masesgroup/retrieve-changed-files@v3
+
+    - name: Transform to directories
+      id: transform
+      continue-on-error: false
+      run: |
+        folders=()
+        for f in ${{ steps.files.outputs.added_modified }}; do
+            if [ -z ${f##*.tf} ]; then
+              echo "Adding $(dirname $f) to folders"
+              folders+=($(dirname $f))
+            else
+              echo "File ${f} skipped."
+            fi
+        done
+        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
+        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
+
+  terraform:
+    name: 'Run Terraform Par'
+    needs: get_tf_folders
+    runs-on: azure-cicd
+
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      matrix:
+        tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
+ 
+    steps:
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      working-directory: ${{ matrix.tf_folder }}
+      id: init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+        STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+        CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+      run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+
+    # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
+    - name: Terraform Validate
+      working-directory: ${{ matrix.tf_folder }}
+      id: validate
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terraform validate -no-color
+
+    # Run a terraform plan for pull requests only
+    - name: Terraform Plan
+      working-directory: ${{ matrix.tf_folder }}
+      id: plan
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      if: github.event_name == 'pull_request'
+      run: terraform plan -no-color
+
+    # Add a comment to pull requests with plan results
+    - name: Add Plan Comment
+      id: comment
+      uses: actions/github-script@v3
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+      
+          <details><summary>Show Plan</summary>
+          
+          \`\`\`${process.env.PLAN}\`\`\`
+          
+          </details>
+          
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.WORK_DIR }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+      # On push to main, build or change infrastructure according to Terraform configuration files
+    - name: Terraform Apply
+      working-directory: ${{ matrix.tf_folder }}
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terraform apply -auto-approve
