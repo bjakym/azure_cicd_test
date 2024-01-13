@@ -97,7 +97,6 @@ jobs:
 
     # Add a comment to pull requests with plan results
     - name: Add Plan Comment
-      working-directory: ${{ matrix.tf_folder }}
       id: comment
       uses: actions/github-script@v3
       if: github.event_name == 'pull_request'
