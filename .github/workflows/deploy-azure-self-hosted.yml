@@ -92,13 +92,13 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terraform validate -no-color
+      run: echo "result=$(terraform validate -no-color)" >> $GITHUB_OUTPUT
 
     # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
     - name: Check Step Output
       id: check-output
       run: |
-        echo ${{ steps.validate.outputs.stdout }}
+        echo ${{ steps.validate.outputs.result }}
 
     # # Run a terraform plan for pull requests only
     # - name: Terraform Plan
