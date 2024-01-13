@@ -1,6 +1,16 @@
 name: 'Azure Terraform Self-hosted'
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      # Push events our default branch
+      - master
+      # Push events to branches matching refs/heads/renovate/...
+      - 'renovate/**'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - 'renovate.json'
 
 env:
   TF_LOG: INFO
@@ -100,8 +110,6 @@ jobs:
       id: comment
       uses: actions/github-script@v3
       if: github.event_name == 'pull_request'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -111,11 +119,11 @@ jobs:
       
           <details><summary>Show Plan</summary>
           
-          \`\`\`${process.env.PLAN}\`\`\`
+          \`\`\`${{ steps.plan.outputs.stdout }}\`\`\`
           
           </details>
           
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.WORK_DIR }}\`, Workflow: \`${{ github.workflow }}\`*`;
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*`;
             
           github.issues.createComment({
             issue_number: context.issue.number,
