@@ -1,20 +1,20 @@
 name: 'Azure Terraform Self-hosted'
 
 on:
-  workflow_dispatch:
+#   workflow_dispatch:
 
 # on: [push, pull_request]
 
-  # push:
-  #   branches:
-  #     # Push events our default branch
-  #     - main
-  #     # Push events to branches matching refs/heads/renovate/...
-  #     - 'renovate/**'
+  push:
+    branches:
+      # Push events our default branch
+      - main
+      # Push events to branches matching refs/heads/renovate/...
+      - 'renovate/**'
 
-  # pull_request:
-  #   paths-ignore:
-  #     - '*.md'
+  pull_request:
+    paths-ignore:
+      - '*.md'
 
 env:
   TF_LOG: INFO
@@ -98,12 +98,6 @@ jobs:
       run: |
         terraform validate -no-color
         echo "result=$(terraform validate -no-color)" >> $GITHUB_OUTPUT
-
-    # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
-    - name: Check Step Output
-      id: check-output
-      run: |
-        echo ${{ steps.validate.outputs.result }}
 
     # Run a terraform plan for pull requests only
     - name: Terraform Plan
