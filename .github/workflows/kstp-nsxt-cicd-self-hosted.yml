@@ -2,6 +2,9 @@ name: 'Azure Terraform Self-hosted'
 
 on: [push, pull_request]
 
+env:
+  TF_LOG: INFO
+
 jobs:
   get_tf_folders:
     name: 'Get Terraform folders'
@@ -56,9 +59,11 @@ jobs:
     steps:
 
     - name: Terraform Init
+      working-directory: ${{ matrix.tf_folder }}
       run: |
         echo "Do terraform init with ${{ matrix.tf_folder }}"
 
     - name: Terraform Validate
+      working-directory: ${{ matrix.tf_folder }}
       run: |
         echo "Do terraform validate with ${{ matrix.tf_folder }}"
