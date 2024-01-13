@@ -21,47 +21,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Get all changed files  
-      id: files
-      uses: masesgroup/retrieve-changed-files@v3
-
-    - name: Transform to directories
-      id: transform
-      continue-on-error: false
+    - name: List files
       run: |
-        folders=()
-        for f in ${{ steps.files.outputs.added_modified }}; do
-            if [ -z ${f##*.tf} ]; then
-              echo "Adding $(dirname $f) to folders"
-              folders+=($(dirname $f))
-            else
-              echo "File ${f} skipped."
-            fi
-        done
-        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
-        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
-        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
-
-  terraform:
-    name: 'Run Terraform Par'
-    needs: get_tf_folders
-    runs-on: azure-cicd
-
-    defaults:
-      run:
-        shell: bash
-
-    strategy:
-      matrix:
-        # tf_folder: ${{ needs.get_changed_files.outputs.pushed_chg_files }}
-        tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
- 
-    steps:
-
-    - name: Terraform Init
-      run: |
-        echo "Do terraform init with ${{ matrix.tf_folder }}"
-
-    - name: Terraform Validate
-      run: |
-        echo "Do terraform validate with ${{ matrix.tf_folder }}"
+        ls -lrt
