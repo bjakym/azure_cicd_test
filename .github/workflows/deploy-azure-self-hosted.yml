@@ -1,16 +1,17 @@
 name: 'Azure Terraform Self-hosted'
 
-on: 
-  push:
-    branches:
-      # Push events our default branch
-      - main
-      # Push events to branches matching refs/heads/renovate/...
-      - 'renovate/**'
+on: [push, pull_request]
 
-  pull_request:
-    paths-ignore:
-      - '*.md'
+  # push:
+  #   branches:
+  #     # Push events our default branch
+  #     - main
+  #     # Push events to branches matching refs/heads/renovate/...
+  #     - 'renovate/**'
+
+  # pull_request:
+  #   paths-ignore:
+  #     - '*.md'
 
 env:
   TF_LOG: INFO
@@ -93,54 +94,60 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       run: terraform validate -no-color
 
-    # Run a terraform plan for pull requests only
-    - name: Terraform Plan
-      working-directory: ${{ matrix.tf_folder }}
-      id: plan
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
+    # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
+    - name: Check Step Output
+      id: check-output
+      run: |
+        echo ${{ steps.validate.outputs.stdout }}
 
-    # Add a comment to pull requests with plan results
-    - name: Add Plan Comment
-      id: comment
-      uses: actions/github-script@v3
-      if: github.event_name == 'pull_request'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
-          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+    # # Run a terraform plan for pull requests only
+    # - name: Terraform Plan
+    #   working-directory: ${{ matrix.tf_folder }}
+    #   id: plan
+    #   env:
+    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #   if: github.event_name == 'pull_request'
+    #   run: terraform plan -no-color
+
+    # # Add a comment to pull requests with plan results
+    # - name: Add Plan Comment
+    #   id: comment
+    #   uses: actions/github-script@v3
+    #   if: github.event_name == 'pull_request'
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+    #       #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+    #       #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
       
-          <details><summary>Show Plan</summary>
+    #       <details><summary>Show Plan</summary>
           
-          \`\`\`${process.env.PLAN}\`\`\`
+    #       \`\`\`${process.env.PLAN}\`\`\`
           
-          </details>
+    #       </details>
           
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*`;
+    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*`;
             
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+    #       github.issues.createComment({
+    #         issue_number: context.issue.number,
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         body: output
+    #       })
 
-      # On push to main, build or change infrastructure according to Terraform configuration files
-    - name: Terraform Apply
-      working-directory: ${{ matrix.tf_folder }}
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terraform apply -auto-approve
+    #   # On push to main, build or change infrastructure according to Terraform configuration files
+    # - name: Terraform Apply
+    #   working-directory: ${{ matrix.tf_folder }}
+    #   if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    #   env:
+    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #   run: terraform apply -auto-approve
