@@ -1,8 +1,6 @@
-name: 'Azure Terraform'
+name: 'Azure Terraform Self-hosted'
 
-# on: [push, pull_request]
-on:
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
   get_tf_folders:
@@ -11,7 +9,7 @@ jobs:
 
     defaults:
       run:
-        shell: bash
+        shell: "C:\\Program Files\\Git\\bin\\bash"
 
     outputs:
       directories: ${{ steps.transform.outputs.directories }}
