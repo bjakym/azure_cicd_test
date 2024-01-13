@@ -19,6 +19,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Get all changed files  
+      id: files
+      uses: masesgroup/retrieve-changed-files@v3
+
     - name: List files
       run: |
         ls -lrt
