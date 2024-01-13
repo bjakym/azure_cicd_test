@@ -37,6 +37,28 @@ jobs:
             fi
         done
         unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
-        echo ${unique_folders[@]}
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
+
+  terraform:
+    name: 'Run Terraform Par'
+    needs: get_tf_folders
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      matrix:
+        tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
+ 
+    steps:
+
+    - name: Terraform Init
+      run: |
+        echo "Do terraform init with ${{ matrix.tf_folder }}"
+
+    - name: Terraform Validate
+      run: |
+        echo "Do terraform validate with ${{ matrix.tf_folder }}"
