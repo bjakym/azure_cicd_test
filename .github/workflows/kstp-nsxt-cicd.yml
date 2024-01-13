@@ -39,6 +39,7 @@ jobs:
             fi
         done
         unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo ${unique_folders[@]}
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
         echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
 
