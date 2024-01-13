@@ -7,7 +7,7 @@ on:
 jobs:
   get_tf_folders:
     name: 'Get Terraform folders'
-    runs-on: azure-runner-1
+    runs-on: azure-cicd
 
     defaults:
       run:
@@ -45,7 +45,7 @@ jobs:
   terraform:
     name: 'Run Terraform Par'
     needs: get_tf_folders
-    runs-on: ubuntu-latest
+    runs-on: azure-cicd
 
     defaults:
       run:
