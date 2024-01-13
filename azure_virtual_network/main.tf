@@ -5,12 +5,12 @@ resource "azurerm_virtual_network" "app_network" {
   address_space       = ["10.0.0.0/16"]
 
   subnet {
-    name           = "Subnet-A111"
+    name           = "Subnet-A1111"
     address_prefix = "10.0.1.0/24"
   }
 
   subnet {
-    name           = "Subnet-B111"
+    name           = "Subnet-B1111"
     address_prefix = "10.0.2.0/24"
   }
 }

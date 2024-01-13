@@ -1,16 +1,16 @@
 name: 'Azure Terraform Self-hosted'
 
-on:
+on: 
   push:
     branches:
       # Push events our default branch
-      - master
+      - main
       # Push events to branches matching refs/heads/renovate/...
       - 'renovate/**'
+
   pull_request:
     paths-ignore:
       - '*.md'
-      - 'renovate.json'
 
 env:
   TF_LOG: INFO
@@ -110,6 +110,8 @@ jobs:
       id: comment
       uses: actions/github-script@v3
       if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -119,7 +121,7 @@ jobs:
       
           <details><summary>Show Plan</summary>
           
-          \`\`\`${{ steps.plan.outputs.stdout }}\`\`\`
+          \`\`\`${process.env.PLAN}\`\`\`
           
           </details>
           
