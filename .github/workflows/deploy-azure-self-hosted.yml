@@ -125,7 +125,11 @@ jobs:
         script: |
           const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
-          #### Terraform Plan 📖\`${{ steps.plan.outputs.result }}\``;
+          #### Terraform Cloud Plan Output
+          \`\`\`
+          ${{ steps.plan.outputs.result }}
+          \`\`\`
+          `;
                   
           github.issues.createComment({
             issue_number: context.issue.number,
