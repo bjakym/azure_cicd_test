@@ -1,20 +1,20 @@
 name: 'Azure Terraform Self-hosted'
 
-on:
+# on:
 #   workflow_dispatch:
 
-# on: [push, pull_request]
+on: [push, pull_request]
 
-  push:
-    branches:
-      # Push events our default branch
-      - main
-      # Push events to branches matching refs/heads/renovate/...
-      - 'renovate/**'
+  # push:
+  #   branches:
+  #     # Push events our default branch
+  #     - main
+  #     # Push events to branches matching refs/heads/renovate/...
+  #     - 'renovate/**'
 
-  pull_request:
-    paths-ignore:
-      - '*.md'
+  # pull_request:
+  #   paths-ignore:
+  #     - '*.md'
 
 env:
   TF_LOG: INFO
@@ -29,33 +29,32 @@ jobs:
         shell: bash
 
     outputs:
-      directories: ${{ steps.transform.outputs.directories }}
+      directories: ${{ steps.tfdirsjson.outputs.directories }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Get all changed files  
-      id: files
-      uses: masesgroup/retrieve-changed-files@v3
+    - name: Get Terraform Folders
+      id: tfdirs
+      uses: tj-actions/changed-files@v41
+      with:
+        files: |
+            **.tf
+        dir_names: true
 
-    - name: Transform to directories
-      id: transform
+    - name: Convert Folder List to Json
+      id: tfdirsjson
       continue-on-error: false
       run: |
-        folders=()
-        for f in ${{ steps.files.outputs.added_modified }}; do
-            if [ -z ${f##*.tf} ]; then
-              echo "Adding $(dirname $f) to folders"
-              folders+=($(dirname $f))
-            else
-              echo "File ${f} skipped."
-            fi
+        folders_json="["
+        for dir in ${{ steps.tfdirs.outputs.all_changed_files }}; do
+          folders_json+="\"${dir}\","
         done
-        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
-        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})"
-        echo "directories=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
+        folders_json="${folders_json%,}]"
+        echo "directories=${folders_json}"
+        echo "directories=${folders_json}" >> $GITHUB_OUTPUT
 
   terraform:
     name: 'Run Terraform Par'
@@ -146,13 +145,13 @@ jobs:
             body: output
           })
 
-    #   # On push to main, build or change infrastructure according to Terraform configuration files
-    # - name: Terraform Apply
-    #   working-directory: ${{ matrix.tf_folder }}
-    #   if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #   run: terraform apply -auto-approve
+    # On push to main, build or change infrastructure according to Terraform configuration files
+    - name: Terraform Apply
+      working-directory: ${{ matrix.tf_folder }}
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terraform apply -auto-approve
