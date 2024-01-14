@@ -126,9 +126,7 @@ jobs:
           const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
           #### Terraform Plan 📖\`${{ steps.plan.outputs.result }}\``;
-                    
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*`;
-            
+                  
           github.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
