@@ -123,15 +123,16 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          const output = `
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*`;
+          
+          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
           #### Terraform Cloud Plan Output
           \`\`\`
           ${{ steps.plan.outputs.result }}
           \`\`\`
           `;
-
-          `\`*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.WORK_DIR }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
           github.issues.createComment({
             issue_number: context.issue.number,
