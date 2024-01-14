@@ -130,7 +130,9 @@ jobs:
           ${{ steps.plan.outputs.result }}
           \`\`\`
           `;
-                  
+
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.WORK_DIR }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
           github.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
