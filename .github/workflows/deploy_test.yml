@@ -35,8 +35,9 @@ jobs:
       run: |
         folders=()
         for f in ${{ steps.files.outputs.all_changed_files }}; do
-              echo "Adding $(dirname $f) to folders"
-              folders+="\"($(dirname $f))\""
+              dir=$(dirname "$f")
+              echo "Adding ${dir} to folders"
+              folders+=${dir}
         done
         unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
         folders_json="["
