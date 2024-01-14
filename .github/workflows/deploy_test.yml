@@ -22,30 +22,22 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Get all changed files  
-      id: files
+    - name: Get Terraform Folders
+      id: tfdirs
       uses: tj-actions/changed-files@v41
       with:
         files: |
             **.tf
         dir_names: true
 
-    - name: Transform to terraform directories
-      id: transform
+    - name: Convert Folder List to Json
+      id: tfdirsjson
       continue-on-error: false
       run: |
-        folders=()
-        for f in ${{ steps.files.outputs.all_changed_files }}; do
-          echo $f
-              # dir=$(dirname "$f")
-              # echo "Adding ${dir} to folders"
-              # folders+=${dir}
+        folders_json="["
+        for dir in ${{ steps.tfdirs.outputs.all_changed_files }}; do
+          folders_json+="\"${dir}\","
         done
-        # unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
-        # folders_json="["
-        # for f in ${unique_folders[@]}; do
-        #     folders_json+="\"$f\","
-        # done
-        # folders_json="${folders_json%,}]"
-        # echo "directories=${folders_json}"
-        # echo "directories=${folders_json}" >> $GITHUB_OUTPUT
+        folders_json="${folders_json%,}]"
+        echo "directories=${folders_json}"
+        echo "directories=${folders_json}" >> $GITHUB_OUTPUT
