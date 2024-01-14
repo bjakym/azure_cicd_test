@@ -28,14 +28,14 @@ jobs:
       with:
         files: |
             **.tf
+        dir_names: true
 
     - name: Transform to terraform directories
       id: transform
       continue-on-error: false
       run: |
         folders=()
-        for f in ${{ steps.files.outputs.all_changed_files }}; do
-              dir=$(dirname "$f")
+        for dir in ${{ steps.files.outputs.dirs }}; do
               echo "Adding ${dir} to folders"
               folders+=${dir}
         done

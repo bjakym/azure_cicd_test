@@ -12,6 +12,7 @@ locals {
 # RESOURCES
 ##################################################################################
 
+
 ## AZURE AD SP ##
 data "azurerm_subscription" "current" {}
 
