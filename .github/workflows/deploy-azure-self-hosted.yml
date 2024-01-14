@@ -22,8 +22,7 @@ env:
 jobs:
   get_tf_folders:
     name: 'Get Terraform folders'
-    # runs-on: azure-cicd
-    runs-on: ubuntu-latest
+    runs-on: azure-cicd
 
     defaults:
       run:
@@ -61,8 +60,7 @@ jobs:
   terraform:
     name: 'Run Terraform Par'
     needs: get_tf_folders
-    # runs-on: azure-cicd
-    runs-on: ubuntu-latest
+    runs-on: azure-cicd
 
     defaults:
       run:
@@ -73,12 +71,6 @@ jobs:
         tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
  
     steps:
-
-    # Install the preferred version of Terraform CLI 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.10
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
@@ -137,7 +129,7 @@ jobs:
           
           <details><summary>Show Plan</summary>
           \`\`\`terraform\n
-          ${{ steps.plan.outputs.result }}
+          (${{ steps.plan.outputs.result }})
           \n\`\`\`
           </details>
           
