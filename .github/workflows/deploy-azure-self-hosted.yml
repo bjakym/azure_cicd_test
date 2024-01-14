@@ -22,7 +22,8 @@ env:
 jobs:
   get_tf_folders:
     name: 'Get Terraform folders'
-    runs-on: azure-cicd
+    # runs-on: azure-cicd
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -60,7 +61,8 @@ jobs:
   terraform:
     name: 'Run Terraform Par'
     needs: get_tf_folders
-    runs-on: azure-cicd
+    # runs-on: azure-cicd
+    runs-on: ubuntu-latest
 
     defaults:
       run:
