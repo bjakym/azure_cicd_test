@@ -124,12 +124,12 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖${{ steps.validate.outputs.result }}
+          #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
           
           <details><summary>Show Plan</summary>
           \`\`\`terraform\n
-          (${{ steps.plan.outputs.result }})
+          ${{ steps.plan.outputs.result }}
           \n\`\`\`
           </details>
           
