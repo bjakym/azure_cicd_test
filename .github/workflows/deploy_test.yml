@@ -35,15 +35,17 @@ jobs:
       continue-on-error: false
       run: |
         folders=()
-        for dir in ${{ steps.files.outputs.dirs }}; do
-              echo "Adding ${dir} to folders"
-              folders+=${dir}
+        for f in ${{ steps.files.outputs.all_changed_files }}; do
+          echo $f
+              # dir=$(dirname "$f")
+              # echo "Adding ${dir} to folders"
+              # folders+=${dir}
         done
-        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
-        folders_json="["
-        for f in ${unique_folders[@]}; do
-            folders_json+="\"$f\","
-        done
-        folders_json="${folders_json%,}]"
-        echo "directories=${folders_json}"
-        echo "directories=${folders_json}" >> $GITHUB_OUTPUT
+        # unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        # folders_json="["
+        # for f in ${unique_folders[@]}; do
+        #     folders_json+="\"$f\","
+        # done
+        # folders_json="${folders_json%,}]"
+        # echo "directories=${folders_json}"
+        # echo "directories=${folders_json}" >> $GITHUB_OUTPUT
