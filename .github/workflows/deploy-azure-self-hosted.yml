@@ -126,10 +126,15 @@ jobs:
           const output = `
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
           #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
-          #### Terraform Cloud Plan Output
+          #### Terraform Plan Output
+
+          <details><summary>Show Plan</summary>
+
           \`\`\`
           ${{ steps.plan.outputs.result }}
           \`\`\`
+
+          </details>
 
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
           `;
