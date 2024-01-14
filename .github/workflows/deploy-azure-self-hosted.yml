@@ -110,6 +110,7 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       if: github.event_name == 'pull_request'
       run: |
+        terraform plan -no-color
         echo 'result<<EOF' >> $GITHUB_OUTPUT
         terraform plan -no-color >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
