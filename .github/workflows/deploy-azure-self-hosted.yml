@@ -120,19 +120,17 @@ jobs:
       id: comment
       uses: actions/github-script@v3
       if: github.event_name == 'pull_request'
-      env:
-        PLAN: "${{ steps.plan.outputs.result }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
           #### Terraform Validation 🤖${{ steps.validate.outputs.result }}
           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-      
+          
           <details><summary>Show Plan</summary>
-          
-          \`\`\`${process.env.PLAN}\`\`\`
-          
+          \`\`\`terraform\n
+          ${{ steps.plan.outputs.result }}
+          \n\`\`\`
           </details>
           
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*`;
