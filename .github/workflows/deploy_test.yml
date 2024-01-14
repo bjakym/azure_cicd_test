@@ -1,0 +1,35 @@
+name: 'Deploy Test'
+
+on: [push, pull_request]
+
+env:
+  TF_LOG: INFO
+
+jobs:
+  get_tf_folders:
+    name: 'Get Terraform folders'
+    runs-on: azure-cicd
+
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      directories: ${{ steps.transform.outputs.directories }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Get all changed files  
+      id: files
+      uses: tj-actions/changed-files@v41
+
+    - name: List all changed files
+      env:
+        ALL_CHANGED_FILES: ${{ steps.files.outputs.all_changed_files }}
+      run: |
+        for file in "$ALL_CHANGED_FILES"; do
+          echo "$file was changed"
+        done
