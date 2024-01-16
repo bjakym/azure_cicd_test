@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      matrix: ${{ steps.setup.outputs.matrix }}
+      environments: ${{ steps.environments.outputs.environments }}
 
     steps:
     - name: Setup
@@ -29,6 +29,18 @@ jobs:
             }
           ]
       run: echo "matrix=$(jq -r -c . <<< "$CONFIG")" >> $GITHUB_OUTPUT
+
+    - name: Build Environments Array
+      id: environments
+      run: |
+        myArray=()
+        myArray+=("env1")
+        myArray+=("env2")
+        myArray+=("env3")
+        myArray=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${myArray[@]}")
+        echo "Updated environments list: $myArray"
+        echo "environments=$myArray" >> $GITHUB_OUTPUT
+      shell: bash
     
     - name: Check
       run: jq . <<< '${{ steps.setup.outputs.matrix }}'
@@ -37,14 +49,15 @@ jobs:
     needs: [terraform_prepare]
     strategy:
       matrix:
-        tf_resources: ${{ fromJSON(needs.terraform_prepare.outputs.matrix) }}
+        # tf_resources: ${{ fromJSON(needs.terraform_prepare.outputs.matrix) }}
+        environment: ${{ fromJSON(needs.terraform_prepare.outputs.environments) }}
       fail-fast: true
       # max-parallel: 1
     # environment:
     #   name: ${{ matrix.environment }}
     uses: ./.github/workflows/terraform-flow.yml
     with:
-      folder: ${{ matrix.tf_resources }}
+      folder: ${{ matrix.environment }}
 
   # step2:
   #   needs: step1
