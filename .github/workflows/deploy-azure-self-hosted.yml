@@ -1,9 +1,9 @@
 name: 'Azure Terraform Self-hosted'
 
-# on:
-#   workflow_dispatch:
+on:
+  workflow_dispatch:
 
-on: [push, pull_request]
+# on: [push, pull_request]
 
   # push:
   #   branches:
