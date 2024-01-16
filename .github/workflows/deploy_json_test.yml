@@ -16,25 +16,16 @@ jobs:
         CONFIG: >-
           [
             {
-              "project": "foo",
-              "config": "Debug",
-              "nested": [
-                {
-                  "val": "val1"
-                }
-              ]
+                "tf_folders": [
+                    "projects/EU1/Inventory/201-groups",
+                    "projects/EU1/eu1-t0-dr-shared-002/104-gw-dfw"
+                ]
             },
             {
-              "project": "bar",
-              "config": "Release",
-              "nested": [
-                {
-                  "val": "val2"
-                },
-                {
-                  "val": "val3"
-                }
-              ]
+                "tf_folders": [
+                    "projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/101-dres",
+                    "projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/101-dres"
+                ]
             }
           ]
       run: echo "matrix=$(jq -r -c . <<< "$CONFIG")" >> $GITHUB_OUTPUT
@@ -55,11 +46,11 @@ jobs:
     - name: Check
       env:
         MATRIX: ${{ toJSON(matrix) }}
-        PROJECT: ${{ fromJSON(toJSON(matrix)).project }}
-        CONFIG: ${{ fromJSON(toJSON(matrix)).config }}
-        NESTED: ${{ join(fromJSON(toJSON(matrix)).nested.*.val, ', ') }}
+        # PROJECT: ${{ fromJSON(toJSON(matrix)).project }}
+        # CONFIG: ${{ fromJSON(toJSON(matrix)).config }}
+        # NESTED: ${{ join(fromJSON(toJSON(matrix)).nested.*.val, ', ') }}
       run: |
         echo "MATRIX: $(jq -r -c '.' <<< "$MATRIX")"
-        echo "PROJECT: [$PROJECT]"
-        echo "CONFIG: [$CONFIG]"
-        echo "NESTED: [$NESTED]"
+        # echo "PROJECT: [$PROJECT]"
+        # echo "CONFIG: [$CONFIG]"
+        # echo "NESTED: [$NESTED]"
