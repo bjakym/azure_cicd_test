@@ -52,7 +52,7 @@ jobs:
         # tf_resources: ${{ fromJSON(needs.terraform_prepare.outputs.matrix) }}
         environment: ${{ fromJSON(needs.terraform_prepare.outputs.environments) }}
       fail-fast: true
-      # max-parallel: 1
+      max-parallel: 1
     # environment:
     #   name: ${{ matrix.environment }}
     uses: ./.github/workflows/terraform-flow.yml
