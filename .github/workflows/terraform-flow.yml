@@ -1,0 +1,28 @@
+on:
+  workflow_call:
+    inputs:
+      folder:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build in ${{ inputs.folder}}
+        run: |
+          echo "Build in ${{ inputs.folder }}"
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test in ${{ inputs.folder }}
+        run: |
+          echo "Test in ${{ inputs.folder }}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy in ${{ inputs.folder }}
+        run: |
+          echo "Deploy in ${{ inputs.folder }}"
