@@ -3,7 +3,7 @@ name: populate_matrix_from_json
 on: [push, pull_request]
 
 jobs:
-  step1:
+  terraform_prepare:
     runs-on: ubuntu-latest
 
     outputs:
@@ -33,24 +33,37 @@ jobs:
     - name: Check
       run: jq . <<< '${{ steps.setup.outputs.matrix }}'
 
-  step2:
-    needs: step1
-
-    runs-on: ubuntu-latest
-
+  terraform:
+    needs: [terraform_prepare]
     strategy:
-      matrix: 
-        include: ${{ fromJSON(needs.step1.outputs.matrix) }}
+      matrix:
+        tf_resources: ${{ fromJSON(needs.terraform_prepare.outputs.matrix) }}
+      fail-fast: true
+      # max-parallel: 1
+    # environment:
+    #   name: ${{ matrix.environment }}
+    uses: OWNER/REPO/.github/workflows/terraform-flow.yml@dres-203
+    with:
+      folder: ${{ matrix.tf_resources }}
 
-    steps:
-    - name: Check
-      env:
-        MATRIX: ${{ toJSON(matrix) }}
-        # PROJECT: ${{ fromJSON(toJSON(matrix)).project }}
-        # CONFIG: ${{ fromJSON(toJSON(matrix)).config }}
-        # NESTED: ${{ join(fromJSON(toJSON(matrix)).nested.*.val, ', ') }}
-      run: |
-        echo "MATRIX: $(jq -r -c '.' <<< "$MATRIX")"
-        # echo "PROJECT: [$PROJECT]"
-        # echo "CONFIG: [$CONFIG]"
-        # echo "NESTED: [$NESTED]"
+  # step2:
+  #   needs: step1
+
+  #   runs-on: ubuntu-latest
+
+  #   strategy:
+  #     matrix: 
+  #       include: ${{ fromJSON(needs.step1.outputs.matrix) }}
+
+  #   steps:
+  #   - name: Check
+  #     env:
+  #       MATRIX: ${{ toJSON(matrix) }}
+  #       # PROJECT: ${{ fromJSON(toJSON(matrix)).project }}
+  #       # CONFIG: ${{ fromJSON(toJSON(matrix)).config }}
+  #       # NESTED: ${{ join(fromJSON(toJSON(matrix)).nested.*.val, ', ') }}
+  #     run: |
+  #       echo "MATRIX: $(jq -r -c '.' <<< "$MATRIX")"
+  #       # echo "PROJECT: [$PROJECT]"
+  #       # echo "CONFIG: [$CONFIG]"
+  #       # echo "NESTED: [$NESTED]"
