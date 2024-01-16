@@ -42,7 +42,7 @@ jobs:
       # max-parallel: 1
     # environment:
     #   name: ${{ matrix.environment }}
-    uses: bjakym/azure_cicd_test/.github/workflows/terraform-flow.yml@master
+    uses: ./.github/workflows/terraform-flow.yml
     with:
       folder: ${{ matrix.tf_resources }}
 
