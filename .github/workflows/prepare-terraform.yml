@@ -64,7 +64,7 @@ jobs:
 
     - name: Order Terraform Folders
       id: tfdirsjsonorder
-      working-directory: github/scripts
+      working-directory: .github/scripts
       run: |
         python tf_folders_order.py ${{ steps.tfdirsjson.outputs.directories }}
 
