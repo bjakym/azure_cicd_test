@@ -1,0 +1,261 @@
+name: 'Prepare Terraform'
+
+# on:
+#   workflow_dispatch:
+
+on: [push, pull_request]
+
+  # push:
+  #   branches:
+  #     # Push events our default branch
+  #     - main
+  #     # Push events to branches matching refs/heads/renovate/...
+  #     - 'renovate/**'
+
+  # pull_request:
+  #   paths-ignore:
+  #     - '*.md'
+
+env:
+  TF_LOG: INFO
+
+jobs:
+  get_tf_folders:
+    name: 'Get Terraform folders'
+    runs-on: azure-cicd
+
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      directories: ${{ steps.tfdirsjsonorder.outputs.directories }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # - name: Get Terraform Folders
+    #   id: tfdirs
+    #   uses: tj-actions/changed-files@v41
+    #   with:
+    #     files: |
+    #         **.tf
+    #     dir_names: true
+
+    # - name: Convert Folder List to Json
+    #   id: tfdirsjson
+    #   run: |
+    #     folders_json="["
+    #     for dir in ${{ steps.tfdirs.outputs.all_changed_files }}; do
+    #       folders_json+="\"${dir}\","
+    #     done
+    #     folders_json="${folders_json%,}]"
+    #     echo "directories=${folders_json}"
+    #     echo "directories=${folders_json}" >> $GITHUB_OUTPUT
+
+    - name: Set Test Folder List
+      id: tfdirsjson
+      run: |
+        folders_test="projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/101-dres projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/101-dres projects/EU1/eu1-t0-dr-shared-002/104-gw-dfw projects/EU1/Inventory/201-groups"
+        echo "directories=${folders_test}"
+        echo "directories=${folders_test}" >> $GITHUB_OUTPUT
+
+    - name: Order Terraform Folders
+      id: tfdirsjsonorder
+      working-directory: .github/scripts
+      run: |
+        python tf_folders_order.py "${{ steps.tfdirsjson.outputs.directories }}"
+
+
+#   terraform:
+#     name: 'Run Terraform Par'
+#     needs: get_tf_folders
+#     runs-on: azure-cicd
+
+#     defaults:
+#       run:
+#         shell: bash
+
+#     strategy:
+#       matrix:
+#         tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
+ 
+#     steps:
+
+#     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+#     - name: Terraform Init
+#       working-directory: ${{ matrix.tf_folder }}
+#       id: init
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#         RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+#         STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+#         CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+#       run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+
+#     # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
+#     - name: Terraform Validate
+#       working-directory: ${{ matrix.tf_folder }}
+#       id: validate
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#       run: |
+#         terraform validate -no-color
+#         echo "result=$(terraform validate -no-color)" >> $GITHUB_OUTPUT
+
+#     # Run a terraform plan for pull requests only
+#     - name: Terraform Plan
+#       working-directory: ${{ matrix.tf_folder }}
+#       id: plan
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#       if: github.event_name == 'pull_request'
+#       run: |
+#         terraform plan -no-color
+#         echo 'result<<EOF' >> $GITHUB_OUTPUT
+#         terraform plan -no-color >> $GITHUB_OUTPUT
+#         echo 'EOF' >> $GITHUB_OUTPUT
+
+#     # Add a comment to pull requests with plan results
+#     - name: Add Plan Comment
+#       id: comment
+#       uses: actions/github-script@v3
+#       if: github.event_name == 'pull_request'
+#       with:
+#         github-token: ${{ secrets.GITHUB_TOKEN }}
+#         script: |
+#           const output = `
+#           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+#           #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
+#           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+#           <details><summary>Show Plan</summary>
+
+#           \`\`\`
+#           ${{ steps.plan.outputs.result }}
+#           \`\`\`
+
+#           </details>
+
+#           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
+#           `;
+
+#           github.issues.createComment({
+#             issue_number: context.issue.number,
+#             owner: context.repo.owner,
+#             repo: context.repo.repo,
+#             body: output
+#           })
+
+#     # On push to main, build or change infrastructure according to Terraform configuration files
+#     - name: Terraform Apply
+#       working-directory: ${{ matrix.tf_folder }}
+#       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#       run: terraform apply -auto-approve
+
+
+
+
+
+# ----------------------------
+# name: populate_matrix_from_json
+
+# # on: [push, pull_request]
+
+# on:
+#   workflow_dispatch:
+
+# jobs:
+#   terraform_prepare:
+#     runs-on: ubuntu-latest
+
+#     outputs:
+#       environments: ${{ steps.environments.outputs.environments }}
+
+#     steps:
+#     - name: Setup
+#       id: setup
+#       env:
+#         CONFIG: >-
+#           [
+#             {
+#                 "tf_folders": [
+#                     "projects/EU1/Inventory/201-groups",
+#                     "projects/EU1/eu1-t0-dr-shared-002/104-gw-dfw"
+#                 ]
+#             },
+#             {
+#                 "tf_folders": [
+#                     "projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/101-dres",
+#                     "projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/101-dres"
+#                 ]
+#             }
+#           ]
+#       run: echo "matrix=$(jq -r -c . <<< "$CONFIG")" >> $GITHUB_OUTPUT
+
+#     - name: Build Environments Array
+#       id: environments
+#       run: |
+#         myArray=()
+#         myArray+=("env1")
+#         myArray+=("env2")
+#         myArray+=("env3")
+#         myArray=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${myArray[@]}")
+#         echo "Updated environments list: $myArray"
+#         echo "environments=$myArray" >> $GITHUB_OUTPUT
+#       shell: bash
+    
+#     - name: Check
+#       run: jq . <<< '${{ steps.setup.outputs.matrix }}'
+
+#   terraform:
+#     needs: [terraform_prepare]
+#     strategy:
+#       matrix:
+#         # tf_resources: ${{ fromJSON(needs.terraform_prepare.outputs.matrix) }}
+#         environment: ${{ fromJSON(needs.terraform_prepare.outputs.environments) }}
+#       fail-fast: true
+#       max-parallel: 1
+#     # environment:
+#     #   name: ${{ matrix.environment }}
+#     uses: ./.github/workflows/terraform-flow.yml
+#     with:
+#       folder: ${{ matrix.environment }}
+
+#   # step2:
+#   #   needs: step1
+
+#   #   runs-on: ubuntu-latest
+
+#   #   strategy:
+#   #     matrix: 
+#   #       include: ${{ fromJSON(needs.step1.outputs.matrix) }}
+
+#   #   steps:
+#   #   - name: Check
+#   #     env:
+#   #       MATRIX: ${{ toJSON(matrix) }}
+#   #       # PROJECT: ${{ fromJSON(toJSON(matrix)).project }}
+#   #       # CONFIG: ${{ fromJSON(toJSON(matrix)).config }}
+#   #       # NESTED: ${{ join(fromJSON(toJSON(matrix)).nested.*.val, ', ') }}
+#   #     run: |
+#   #       echo "MATRIX: $(jq -r -c '.' <<< "$MATRIX")"
+#   #       # echo "PROJECT: [$PROJECT]"
+#   #       # echo "CONFIG: [$CONFIG]"
+#   #       # echo "NESTED: [$NESTED]"
