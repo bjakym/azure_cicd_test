@@ -1,6 +1,9 @@
 name: populate_matrix_from_json
 
-on: [push, pull_request]
+# on: [push, pull_request]
+
+on:
+  workflow_dispatch:
 
 jobs:
   terraform_prepare:
