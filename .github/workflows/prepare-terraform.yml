@@ -5,27 +5,28 @@ name: 'Prepare Terraform'
 
 on: [push, pull_request]
 
+defaults:
+  run:
+    shell: bash
+
 env:
   TF_LOG: INFO
 
 jobs:
-  terraform_prepare:
-    name: 'Get Terraform Folders'
+
+  detect_tf_folders:
+    name: 'Detect Committed TF Folders'
     runs-on: azure-cicd
-
-    defaults:
-      run:
-        shell: bash
-
     outputs:
-      directories: ${{ steps.tfdirsjsonorder.outputs.ordered_dirs }}
+      tf_folders: ${{ steps.tfdirs.outputs.dirs }}
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
+    # Checkout the repository
     - name: Checkout
       uses: actions/checkout@v2
 
-    # - name: Get Committed Terraform Folders
+    # Get changed *.tf files and filter only unique directories for these files
+    # - name: Get Changed Terraform Folders
     #   id: tfdirs
     #   uses: tj-actions/changed-files@v41
     #   with:
@@ -33,41 +34,42 @@ jobs:
     #         **.tf
     #     dir_names: true
 
-    # - name: Convert Folder List to Json
-    #   id: tfdirsjson
-    #   run: |
-    #     folders_json="["
-    #     for dir in ${{ steps.tfdirs.outputs.all_changed_files }}; do
-    #       folders_json+="\"${dir}\","
-    #     done
-    #     folders_json="${folders_json%,}]"
-    #     echo "directories=${folders_json}"
-    #     echo "directories=${folders_json}" >> $GITHUB_OUTPUT
-
-    - name: Set Test Folder List
-      id: tfdirsjson
+    # Pass detected TF folder to the next job for ordering
+    - name: Set Changed Terraform Folders
+      id: tfdirs
       run: |
-        folders_test="projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/101-dres projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/101-dres projects/EU1/eu1-t0-dr-shared-002/104-gw-dfw projects/EU1/Inventory/201-groups"
-        echo "directories=${folders_test}"
-        echo "directories=${folders_test}" >> $GITHUB_OUTPUT
+        # folders_list=${{ steps.tfdirs.outputs.all_changed_files }}
+        folders_list="projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/101-dres projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/101-dres projects/EU1/eu1-t0-dr-shared-002/104-gw-dfw projects/EU1/Inventory/201-groups"
+        echo "dirs=${folders_list}"
+        echo "dirs=${folders_list}" >> $GITHUB_OUTPUT
 
-    - name: Order Terraform Folders
-      id: tfdirsjsonorder
+  order_tf_folders:
+    name: 'Order TF Folders'
+    needs: [detect_tf_folders]
+    runs-on: azure-cicd
+    outputs:
+      ordered_tf_folders: ${{ steps.tfdirs_order.outputs.ordered_dirs }}
+
+    steps:
+    # Perform Ordering of TF folders
+    - name: Perform Ordering
+      id: tfdirs_order
       working-directory: .github/scripts
       run: |
-        ordered_dirs=$(python tf_folders_order.py "${{ steps.tfdirsjson.outputs.directories }}")
+        ordered_dirs=$(python tf_folders_order.py "${{ needs.detect_tf_folders.outputs.tf_folders }}")
         echo "ordered_dirs=${ordered_dirs}"
         echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
 
-    - name: Check
-      run: jq . <<< '${{ steps.tfdirsjsonorder.outputs.ordered_dirs }}'
+    # Check if list of TF folders is in JSON format
+    # - name: Check JSON Format
+    #   run: jq . <<< '${{ steps.tfdirs_order.outputs.ordered_dirs }}'
 
   terraform_flow:
     name: 'Set Terraform Flow'
-    needs: [terraform_prepare]
+    needs: [order_tf_folders]
     strategy:
       matrix:
-        folders_string_list: ${{ fromJSON(needs.terraform_prepare.outputs.directories) }}
+        folders_string_list: ${{ fromJSON(needs.order_tf_folders.outputs.ordered_tf_folders) }}
       fail-fast: true
       max-parallel: 1
     uses: ./.github/workflows/terraform-flow.yml
