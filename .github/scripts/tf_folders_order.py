@@ -38,7 +38,7 @@ def display_output(ordered_folders):
             folders_str = " ".join(folders)
             list_to_display.append(folders_str)
         
-    print("ordered_dirs={}".format(json.dumps(list_to_display)))
+    print(json.dumps(list_to_display))
 
 def main():
     # Parse command line arguments

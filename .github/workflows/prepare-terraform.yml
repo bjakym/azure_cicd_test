@@ -55,8 +55,11 @@ jobs:
       id: tfdirsjsonorder
       working-directory: .github/scripts
       run: |
-        python tf_folders_order.py "${{ steps.tfdirsjson.outputs.directories }}"
-        python tf_folders_order.py "${{ steps.tfdirsjson.outputs.directories }}" >> $GITHUB_OUTPUT
+        python tf_folders_order.py "ordered_dirs=${{ steps.tfdirsjson.outputs.directories }}"
+        python tf_folders_order.py "ordered_dirs=${{ steps.tfdirsjson.outputs.directories }}" >> $GITHUB_OUTPUT
+
+    - name: Check
+      run: jq . <<< '${{ steps.tfdirsjsonorder.outputs.ordered_dirs }}'
 
   terraform_flow:
     name: 'Set Terraform Flow'
