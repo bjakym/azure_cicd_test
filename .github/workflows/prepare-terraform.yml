@@ -26,7 +26,7 @@ jobs:
       id: tfdirs
       uses: tj-actions/changed-files@v41
       with:
-        base_sha: ${{ steps.last_successful_commit_push.outputs.base }}
+        base_sha: ${{ github.event.pull_request.base.sha }}
         files: |
             **.tf
         dir_names: true
@@ -35,7 +35,7 @@ jobs:
     - name: Set Changed Terraform Folders
       id: tfdirs_set
       run: |
-        folders_list=${{ steps.tfdirs.outputs.all_changed_files }}
+        folders_list=$(echo "${{ steps.tfdirs.outputs.all_changed_files }}" | tr '\\' '/')
         # folders_list="projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/102-nats projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-395/101-dres projects/EU1/eu1-t0-dr-shared-002/customers/eu1-t1-dr-002-394/101-dres projects/EU1/eu1-t0-dr-shared-002/104-gw-dfw projects/EU1/Inventory/201-groups"
         echo "dirs=${folders_list}"
         echo "dirs=${folders_list}" >> $GITHUB_OUTPUT
