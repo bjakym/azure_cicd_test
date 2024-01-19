@@ -18,7 +18,7 @@ jobs:
         shell: bash
 
     outputs:
-      directories: ${{ steps.tfdirsjsonorder.outputs.directories }}
+      directories: ${{ steps.tfdirsjsonorder.outputs.ordered_dirs }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -63,7 +63,7 @@ jobs:
     needs: [terraform_prepare]
     strategy:
       matrix:
-        folders_string_list: ${{ fromJSON(needs.terraform_prepare.outputs.directories) }}
+        folders_string_list: ${{ fromJSON(needs.terraform_prepare.outputs.ordered_dirs) }}
       fail-fast: true
       max-parallel: 1
     uses: ./.github/workflows/terraform-flow.yml
