@@ -55,8 +55,9 @@ jobs:
       id: tfdirsjsonorder
       working-directory: .github/scripts
       run: |
-        python tf_folders_order.py "ordered_dirs=${{ steps.tfdirsjson.outputs.directories }}"
-        python tf_folders_order.py "ordered_dirs=${{ steps.tfdirsjson.outputs.directories }}" >> $GITHUB_OUTPUT
+        ordered_dirs=$(python tf_folders_order.py "${{ steps.tfdirsjson.outputs.directories }}")
+        echo "ordered_dirs=${ordered_dirs}"
+        echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
 
     - name: Check
       run: jq . <<< '${{ steps.tfdirsjsonorder.outputs.ordered_dirs }}'
