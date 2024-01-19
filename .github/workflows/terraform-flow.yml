@@ -1,39 +1,37 @@
 on:
   workflow_call:
     inputs:
-      folder:
+      folders_string:
         required: true
         type: string
 
 jobs:
-  serialize:
+  prepare_matrix:
+    name: 'Prepare Matrix'
     runs-on: ubuntu-latest
     outputs:
-      directories: ${{ steps.build.outputs.directories }}
+      directories: ${{ steps.set_matrix.outputs.directories }}
     steps:
-      - name: Build in ${{ inputs.folder}}
-        id: build
+      - name: Set matrix for ${{ inputs.folders_string }}
+        id: set_matrix
         run: |
-          first_folder="${{ inputs.folder }}_1"
-          second_folder="${{ inputs.folder }}_2"
-          json_folders="[\"${first_folder}\",\"${second_folder}\"]"
-          echo "directories=${json_folders}"
-          echo "directories=${json_folders}" >> $GITHUB_OUTPUT
-
-  # test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Test in ${{ inputs.folder }}
-  #       run: |
-  #         echo "Test in ${{ inputs.folder }}"
+          matrix_arr=(${{ inputs.folders_string }})
+          matrix_arr_json="["
+          for dir in ${matrix_arr[@]}; do
+            folders_json+="\"${dir}\","
+          done
+          matrix_arr_json="${folders_json%,}]"
+          echo "directories=${matrix_arr_json}"
+          echo "directories=${matrix_arr_json}" >> $GITHUB_OUTPUT
 
   deploy:
-    needs: [serialize]
+    name: 'Run Terraform'
+    needs: [prepare_matrix]
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        tf_folder: ${{ fromJSON(needs.serialize.outputs.directories) }}
+        tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.directories) }}
 
     steps:
       - name: Init in ${{ matrix.tf_folder }}
