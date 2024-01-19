@@ -67,7 +67,7 @@ jobs:
     needs: [terraform_prepare]
     strategy:
       matrix:
-        folders_string_list: ${{ fromJSON(needs.terraform_prepare.outputs.ordered_dirs) }}
+        folders_string_list: ${{ fromJSON(needs.terraform_prepare.outputs.directories) }}
       fail-fast: true
       max-parallel: 1
     uses: ./.github/workflows/terraform-flow.yml
