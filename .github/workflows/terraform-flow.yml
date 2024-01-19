@@ -1,45 +1,153 @@
+name: 'Terraform Flow'
+
 on:
   workflow_call:
     inputs:
-      folder:
+      folders_string:
         required: true
         type: string
 
-jobs:
-  serialize:
-    runs-on: ubuntu-latest
-    outputs:
-      directories: ${{ steps.build.outputs.directories }}
-    steps:
-      - name: Build in ${{ inputs.folder}}
-        id: build
-        run: |
-          first_folder="${{ inputs.folder }}_1"
-          second_folder="${{ inputs.folder }}_2"
-          json_folders="[\"${first_folder}\",\"${second_folder}\"]"
-          echo "directories=${json_folders}"
-          echo "directories=${json_folders}" >> $GITHUB_OUTPUT
+defaults:
+  run:
+    shell: bash
 
-  # test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Test in ${{ inputs.folder }}
-  #       run: |
-  #         echo "Test in ${{ inputs.folder }}"
+env:
+  TF_LOG: INFO
+
+jobs:
+  prepare_matrix:
+    name: 'Prepare Matrix'
+    runs-on: azure-cicd
+    outputs:
+      dirs: ${{ steps.set_matrix.outputs.dirs }}
+    steps:
+      # Set matrix of jobs to run Terraform in parallel for every folder in matrix
+      - name: Set matrix for ${{ inputs.folders_string }}
+        id: set_matrix
+        run: |
+          matrix_arr=(${{ inputs.folders_string }})
+          matrix_arr_json="["
+          for dir in ${matrix_arr[@]}; do
+            matrix_arr_json+="\"${dir}\","
+          done
+          matrix_arr_json="${matrix_arr_json%,}]"
+          echo "dirs=${matrix_arr_json}"
+          echo "dirs=${matrix_arr_json}" >> $GITHUB_OUTPUT
 
   deploy:
-    needs: [serialize]
-    runs-on: ubuntu-latest
+    name: 'Run Terraform'
+    needs: [prepare_matrix]
+    runs-on: azure-cicd
 
     strategy:
       matrix:
-        tf_folder: ${{ fromJSON(needs.serialize.outputs.directories) }}
+        tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
 
     steps:
       - name: Init in ${{ matrix.tf_folder }}
         run: |
-          echo "Deploy in ${{ matrix.tf_folder }}"
+          echo "Init in ${{ matrix.tf_folder }}"
 
       - name: Validate in ${{ matrix.tf_folder }}
         run: |
           echo "Validate in ${{ matrix.tf_folder }}"
+
+#   terraform:
+#     name: 'Run Terraform Par'
+#     needs: get_tf_folders
+#     runs-on: azure-cicd
+
+#     defaults:
+#       run:
+#         shell: bash
+
+#     strategy:
+#       matrix:
+#         tf_folder: ${{ fromJSON(needs.get_tf_folders.outputs.directories) }}
+ 
+#     steps:
+
+#     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+#     - name: Terraform Init
+#       working-directory: ${{ matrix.tf_folder }}
+#       id: init
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#         RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+#         STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+#         CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+#       run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+
+#     # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
+#     - name: Terraform Validate
+#       working-directory: ${{ matrix.tf_folder }}
+#       id: validate
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#       run: |
+#         terraform validate -no-color
+#         echo "result=$(terraform validate -no-color)" >> $GITHUB_OUTPUT
+
+#     # Run a terraform plan for pull requests only
+#     - name: Terraform Plan
+#       working-directory: ${{ matrix.tf_folder }}
+#       id: plan
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#       if: github.event_name == 'pull_request'
+#       run: |
+#         terraform plan -no-color
+#         echo 'result<<EOF' >> $GITHUB_OUTPUT
+#         terraform plan -no-color >> $GITHUB_OUTPUT
+#         echo 'EOF' >> $GITHUB_OUTPUT
+
+#     # Add a comment to pull requests with plan results
+#     - name: Add Plan Comment
+#       id: comment
+#       uses: actions/github-script@v3
+#       if: github.event_name == 'pull_request'
+#       with:
+#         github-token: ${{ secrets.GITHUB_TOKEN }}
+#         script: |
+#           const output = `
+#           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+#           #### Terraform Validation 🤖\`${{ steps.validate.outputs.result }}\`
+#           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+#           <details><summary>Show Plan</summary>
+
+#           \`\`\`
+#           ${{ steps.plan.outputs.result }}
+#           \`\`\`
+
+#           </details>
+
+#           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
+#           `;
+
+#           github.issues.createComment({
+#             issue_number: context.issue.number,
+#             owner: context.repo.owner,
+#             repo: context.repo.repo,
+#             body: output
+#           })
+
+#     # On push to main, build or change infrastructure according to Terraform configuration files
+#     - name: Terraform Apply
+#       working-directory: ${{ matrix.tf_folder }}
+#       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+#       env:
+#         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#       run: terraform apply -auto-approve

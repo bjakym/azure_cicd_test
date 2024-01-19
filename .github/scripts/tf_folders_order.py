@@ -1,4 +1,4 @@
-import argparse
+import argparse, json
 
 def parse_input(input_string):
     # Split the input string into a list of folder paths
@@ -27,21 +27,18 @@ def order_folders(input_list):
     return ordered_folders
 
 def display_output(ordered_folders):
-    # Initialize order level
-    order_lvl = 0
-
+    list_to_display = []
     # Iterate through lengths in sorted order
     for length in sorted(ordered_folders.keys()):
         folders_at_level = ordered_folders[length]
-
         # Iterate through last child names in sorted order
         for last_child_name in sorted(folders_at_level.keys()):
             folders = folders_at_level[last_child_name]
             folders.sort()
-
-            # Increment order level and display output
-            order_lvl += 1
-            print("{}: {}".format(order_lvl, folders))
+            folders_str = " ".join(folders)
+            list_to_display.append(folders_str)
+        
+    print(json.dumps(list_to_display))
 
 def main():
     # Parse command line arguments
