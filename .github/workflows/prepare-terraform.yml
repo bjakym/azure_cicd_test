@@ -26,7 +26,7 @@ jobs:
       id: tfdirs
       uses: tj-actions/changed-files@v41
       with:
-        fetch-depth: 0
+        base_sha: ${{ steps.last_successful_commit_push.outputs.base }}
         files: |
             **.tf
         dir_names: true
