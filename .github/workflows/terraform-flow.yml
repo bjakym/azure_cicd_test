@@ -37,7 +37,7 @@ jobs:
   deploy:
     name: 'Run Terraform'
     needs: [prepare_matrix]
-    runs-on: azure-cicd
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
