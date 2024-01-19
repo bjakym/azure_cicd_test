@@ -24,6 +24,7 @@ jobs:
           echo "directories=${matrix_arr_json}"
           echo "directories=${matrix_arr_json}" >> $GITHUB_OUTPUT
 
+
   deploy:
     name: 'Run Terraform'
     needs: [prepare_matrix]
