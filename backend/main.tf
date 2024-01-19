@@ -54,11 +54,10 @@ resource "azurerm_storage_account" "sa" {
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-
 }
 
 resource "azurerm_storage_container" "ct" {
-  name                 = "terraform-state"
+  name                 = "kstp-terraform-state"
   storage_account_name = azurerm_storage_account.sa.name
 }
 
