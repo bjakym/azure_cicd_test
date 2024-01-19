@@ -29,6 +29,7 @@ jobs:
         files: |
             **.tf
         dir_names: true
+        fetch-depth: 0
 
     # Pass detected TF folder to the next job for ordering
     - name: Set Changed Terraform Folders
