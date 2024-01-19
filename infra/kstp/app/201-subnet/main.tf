@@ -3,6 +3,7 @@ data "azurerm_virtual_network" "kstp_network" {
   resource_group_name = var.res_group
 }
 
+
 resource "azurerm_subnet" "app_subnet" {
   name                 = "app-subnet"
   resource_group_name  = var.res_group
