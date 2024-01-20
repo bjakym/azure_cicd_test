@@ -6,7 +6,7 @@ on:
       # Working directory input from user.
       directory:
         description: Choose directory to run TF destroy
-        default: "azure_virtual_network"
+        default: "101-virtual-network"
         required: true
 
 jobs:
