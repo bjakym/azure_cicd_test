@@ -6,7 +6,7 @@ on:
       # Working directory input from user.
       directory:
         description: Choose directory to run TF destroy
-        default: "101-virtual-network"
+        default: "infra/kstp"
         required: true
 
 jobs:
