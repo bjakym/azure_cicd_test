@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: "./${{ github.event.inputs.directory }}"
+        working-directory: "${{ github.event.inputs.directory }}"
 
     steps:
     # Checkout the repository to the GitHub Actions runner
