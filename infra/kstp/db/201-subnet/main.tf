@@ -7,5 +7,5 @@ resource "azurerm_subnet" "db_subnet" {
   name                 = "db-subnet"
   resource_group_name  = var.res_group
   virtual_network_name = data.azurerm_virtual_network.kstp_network.name
-  address_prefixes     = ["10.0.2.0/24"] 
+  address_prefixes     = ["10.1.2.0/24"] 
 }
