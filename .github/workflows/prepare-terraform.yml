@@ -5,11 +5,11 @@ name: 'Prepare Terraform'
 
 on: 
   push:
-    paths-ignore:
-      - backend/**
+    paths:
+      - 'infra/**'
   pull_request:
-    paths-ignore:
-      - backend/**
+    paths:
+      - 'infra/**'
 
 defaults:
   run:
