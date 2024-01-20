@@ -10,3 +10,8 @@ variable "network" {
   type    = string
   default = "kstp-network"
 }
+
+variable "location" {
+  type    = string
+  default = "North Europe"
+}
