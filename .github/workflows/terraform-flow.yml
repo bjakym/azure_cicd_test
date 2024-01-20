@@ -44,30 +44,6 @@ jobs:
         tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
 
     steps:
-      # - name: Init in ${{ matrix.tf_folder }}
-      #   run: |
-      #     echo "Init in ${{ matrix.tf_folder }}"
-
-      # - name: Validate in ${{ matrix.tf_folder }}
-      #   run: |
-      #     echo "Validate in ${{ matrix.tf_folder }}"
-
-      # Print secrets
-      # - name: Print Values
-      #   working-directory: ${{ matrix.tf_folder }}
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      #     RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-      #     STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
-      #     CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
-      #   run: |
-      #     pwd
-      #     ls -lrt
-      #     az storage account keys list --resource-group ${{ env.RESOURCE_GROUP }} --account-name ${{ env.STORAGE_ACCOUNT }} --query '[0].value' -o tsv
-          
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         working-directory: ${{ matrix.tf_folder }}
