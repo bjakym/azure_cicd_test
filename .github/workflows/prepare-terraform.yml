@@ -3,7 +3,13 @@ name: 'Prepare Terraform'
 # on:
 #   workflow_dispatch:
 
-on: [push, pull_request]
+on: 
+  push:
+    paths-ignore:
+      - backend/**
+  pull_request:
+    paths-ignore:
+      - backend/**
 
 defaults:
   run:
@@ -29,6 +35,8 @@ jobs:
         base_sha: ${{ github.event.pull_request.base.sha }}
         files: |
             **.tf
+        files_ignore:
+            backend/**.tf
         dir_names: true
 
     # Pass detected TF folder to the next job for ordering
