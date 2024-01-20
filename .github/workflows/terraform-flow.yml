@@ -44,8 +44,12 @@ jobs:
         tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
 
     steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
+        if: steps.skip_check.outputs.should_skip != 'true'
         working-directory: ${{ matrix.tf_folder }}
         id: init
         env:
@@ -60,6 +64,7 @@ jobs:
 
       # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
       - name: Terraform Validate
+        if: steps.skip_check.outputs.should_skip != 'true'
         working-directory: ${{ matrix.tf_folder }}
         id: validate
         env:
@@ -73,6 +78,7 @@ jobs:
 
       # Run a terraform plan for pull requests only
       - name: Terraform Plan
+        if: github.event_name == 'pull_request'
         working-directory: ${{ matrix.tf_folder }}
         id: plan
         env:
@@ -80,7 +86,6 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        if: github.event_name == 'pull_request'
         run: |
           terraform plan -no-color
           echo 'result<<EOF' >> $GITHUB_OUTPUT
@@ -89,9 +94,9 @@ jobs:
 
       # Add a comment to pull requests with plan results
       - name: Add Plan Comment
+        if: github.event_name == 'pull_request'
         id: comment
         uses: actions/github-script@v3
-        if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
