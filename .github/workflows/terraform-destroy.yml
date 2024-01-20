@@ -6,7 +6,7 @@ on:
       # Working directory input from user.
       directory:
         description: Choose directory to run TF destroy
-        default: "azure_virtual_network"
+        default: "101-virtual-network"
         required: true
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: "./${{ github.event.inputs.directory }}"
+        working-directory: "${{ github.event.inputs.directory }}"
 
     steps:
     # Checkout the repository to the GitHub Actions runner
