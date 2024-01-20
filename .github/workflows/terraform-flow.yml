@@ -55,16 +55,18 @@ jobs:
       # Print secrets
       - name: Print Values
         working-directory: ${{ matrix.tf_folder }}
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+          STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+          CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
         run: |
           pwd
           ls -lrt
-          echo "ARM_CLIENT_ID - ${{ secrets.ARM_CLIENT_ID }}" | sed 's/./& /g'
-          echo "ARM_CLIENT_SECRET - ${{ secrets.ARM_CLIENT_SECRET }}" | sed 's/./& /g'
-          echo "ARM_TENANT_ID - ${{ secrets.ARM_TENANT_ID }}" | sed 's/./& /g'
-          echo "ARM_SUBSCRIPTION_ID - ${{ secrets.ARM_SUBSCRIPTION_ID }}"
-          echo "RESOURCE_GROUP - ${{ secrets.RESOURCE_GROUP }}"
-          echo "STORAGE_ACCOUNT - ${{ secrets.STORAGE_ACCOUNT }}"
-          echo "CONTAINER_NAME - ${{ secrets.CONTAINER_NAME }}"
+          echo terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
