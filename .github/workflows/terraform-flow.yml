@@ -47,9 +47,10 @@ jobs:
       - id: skip_check
         uses: fkirc/skip-duplicate-actions@v5
 
+      - uses: terraform-cache/terraform-cache@v1
+
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        if: steps.skip_check.outputs.should_skip != 'true'
         working-directory: ${{ matrix.tf_folder }}
         id: init
         env:
