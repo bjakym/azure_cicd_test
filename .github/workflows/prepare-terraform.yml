@@ -68,3 +68,4 @@ jobs:
     uses: ./.github/workflows/terraform-flow.yml
     with:
       folders_string: ${{ matrix.folders_string_list }}
+    secrets: inherit
