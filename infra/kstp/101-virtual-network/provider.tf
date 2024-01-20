@@ -9,7 +9,7 @@ terraform {
         }
     }
     backend "azurerm" {
-        key = "app.terraform.tfstate"
+        key = "virtual-network.terraform.tfstate"
     }
 }
 
