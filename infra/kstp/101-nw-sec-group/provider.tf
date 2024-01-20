@@ -9,7 +9,7 @@ terraform {
         }
     }
     backend "azurerm" {
-        key = "app-subnet.terraform.tfstate"
+        key = "nw-sec-group.terraform.tfstate"
     }
 }
 
