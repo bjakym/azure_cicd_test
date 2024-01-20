@@ -2,19 +2,9 @@
 # VARIABLES
 #############################################################################
 
-variable "location" {
+variable "network" {
   type    = string
-  default = "North Europe"
-}
-
-variable "naming_prefix" {
-  type    = string
-  default = "kstp"
-}
-
-variable "github_repository" {
-  type    = string
-  default = "azure_cicd_test"
+  default = "kstp-network"
 }
 
 variable "res_group" {

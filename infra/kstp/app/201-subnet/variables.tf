@@ -2,12 +2,12 @@
 # VARIABLES
 #############################################################################
 
-variable "location" {
+variable "network" {
   type    = string
-  default = "North Europe"
+  default = "kstp-network"
 }
 
 variable "res_group" {
   type    = string
-  default = "bj-grp"
+  default = "kstp-grp"
 }
