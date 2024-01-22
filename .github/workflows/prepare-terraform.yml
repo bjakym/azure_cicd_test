@@ -18,7 +18,7 @@ defaults:
 jobs:
   detect_tf_folders:
     name: 'Detect Committed TF Folders'
-    runs-on: azure-cicd
+    runs-on: ${{ vars.RUNNER }}
     outputs:
       tf_folders: ${{ steps.tfdirs_set.outputs.dirs }}
 
@@ -52,7 +52,7 @@ jobs:
   order_tf_folders:
     name: 'Order TF Folders'
     needs: [detect_tf_folders]
-    runs-on: azure-cicd
+    runs-on: ${{ vars.RUNNER }}
     outputs:
       ordered_tf_folders: ${{ steps.tfdirs_order.outputs.ordered_dirs }}
 

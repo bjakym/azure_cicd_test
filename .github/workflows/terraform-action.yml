@@ -21,7 +21,7 @@ env:
 jobs:
   prepare_matrix:
     name: 'Prepare Matrix'
-    runs-on: azure-cicd
+    runs-on: ${{ vars.RUNNER }}
     outputs:
       dirs: ${{ steps.set_matrix.outputs.dirs }}
     steps:
@@ -41,7 +41,7 @@ jobs:
   deploy:
     name: 'Run Terraform'
     needs: [prepare_matrix]
-    runs-on: azure-cicd
+    runs-on: ${{ vars.RUNNER }}
 
     strategy:
       matrix:
