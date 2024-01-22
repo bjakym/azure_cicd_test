@@ -48,6 +48,7 @@ jobs:
         echo "dirs=${folders_list}"
         echo "dirs=${folders_list}" >> $GITHUB_OUTPUT
 
+  # Order TF folders to follow specific dependencies
   order_tf_folders:
     name: 'Order TF Folders'
     needs: [detect_tf_folders]
@@ -56,7 +57,7 @@ jobs:
       ordered_tf_folders: ${{ steps.tfdirs_order.outputs.ordered_dirs }}
 
     steps:
-    # Perform Ordering of TF folders
+    # Perform Ordering using python script
     - name: Perform Ordering
       id: tfdirs_order
       working-directory: .github/scripts
@@ -65,6 +66,7 @@ jobs:
         echo "ordered_dirs=${ordered_dirs}"
         echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
 
+  # Execute reusable workflow for every group of TF folders
   terraform_flow:
     name: 'Execute Terraform Flow'
     needs: [order_tf_folders]
