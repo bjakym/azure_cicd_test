@@ -81,4 +81,9 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        run: terraform ${{ inputs.tf_action }} -auto-approve
+        run: |
+          if [ "${{ inputs.tf_action }}" == "plan" ]; then
+            terraform ${{ inputs.tf_action }}
+          else:
+            terraform ${{ inputs.tf_action }} -auto-approve
+          fi
