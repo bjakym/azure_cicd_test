@@ -25,10 +25,6 @@ jobs:
     outputs:
       dirs: ${{ steps.set_matrix.outputs.dirs }}
     steps:
-      # Checkout the repository
-      - name: Checkout
-        uses: actions/checkout@v2
-        
       # Set matrix of jobs to run Terraform in parallel for every folder in matrix
       - name: Set matrix for ${{ inputs.folders_string }}
         id: set_matrix
@@ -51,7 +47,11 @@ jobs:
       matrix:
         tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
 
-    steps:        
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v2
+        
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform init
         working-directory: ${{ matrix.tf_folder }}
