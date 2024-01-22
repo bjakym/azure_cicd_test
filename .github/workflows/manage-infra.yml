@@ -11,7 +11,7 @@ on:
         type: string
       # Terraform action to execute plan/apply/destroy
       action:
-        description: Choose Terraform Action
+        description: Choose terraform action
         default: "plan"
         required: true
         type: choice
@@ -19,6 +19,15 @@ on:
           - plan
           - apply
           - destroy
+      # Recursion in sub-folders: True/False = Enabled/Disabled
+      recursive:
+        description: If to action recursively in subfolders
+        default: "False"
+        required: true
+        type: choice
+        options:
+          - "False"
+          - "True"
 
 defaults:
   run:
@@ -41,7 +50,7 @@ jobs:
     - name: Perform Ordering
       id: tfdirs_order
       run: |
-        ordered_dirs=$(python .github/scripts/tf_order_by_action.py "${{ github.event.inputs.action }}" "${{ github.event.inputs.directory }}")
+        ordered_dirs=$(python .github/scripts/tf_order_by_action.py "${{ github.event.inputs.action }}" "${{ github.event.inputs.directory }}" "${{ github.event.inputs.recursive }}")
         echo "ordered_dirs=${ordered_dirs}"
         echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
 

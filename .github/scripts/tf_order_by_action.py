@@ -1,6 +1,17 @@
 import os, sys, json
 
-def scan_terraform_folders(root_folder):
+def walklevel(some_dir, level=1):
+    # Generator function for walking a directory tree up to a specified level
+    some_dir = some_dir.rstrip(os.path.sep)
+    assert os.path.isdir(some_dir)
+    num_sep = some_dir.count(os.path.sep)
+    for root, dirs, files in os.walk(some_dir):
+        yield root, dirs, files
+        num_sep_this = root.count(os.path.sep)
+        if num_sep + level <= num_sep_this:
+            del dirs[:]
+
+def scan_terraform_folders(root_folder, depth):
     # Function to count the number of slashes in a folder path
     def count_slashes(folder):
         return folder.count(os.path.sep)
@@ -16,8 +27,8 @@ def scan_terraform_folders(root_folder):
     # List to store folders with Terraform files
     terraform_folders = []
 
-    # Traverse the directory tree and find folders with .tf files
-    for foldername, subfolders, filenames in os.walk(root_folder):
+    # Traverse the directory tree and find folders with .tf files, limited by depth
+    for foldername, subfolders, filenames in walklevel(root_folder, level=depth):
         if any(filename.endswith('.tf') for filename in filenames):
             terraform_folders.append(foldername)
 
@@ -59,16 +70,22 @@ def join_list(list):
             
 if __name__ == "__main__":
     # Check if the correct number of command-line arguments is provided
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <apply|destroy> <folder_path>")
+    if len(sys.argv) != 4:
+        print("Usage: python script.py <apply|destroy> <folder_path> <recursive>")
         sys.exit(1)
 
-    # Extract the Terraform action and folder path from command-line arguments
+    # Extract the Terraform action, folder path, and recursive flag from command-line arguments
     tf_action = sys.argv[1]
     folder_path = sys.argv[2]
+    recursive_flag = sys.argv[3].lower() == 'true'
+
+    if recursive_flag:
+        recursion_depth = 100  # A large number to indicate unlimited recursion
+    else:
+        recursion_depth = 1
 
     # Scan Terraform folders and get the result
-    tf_folders = scan_terraform_folders(folder_path)
+    tf_folders = scan_terraform_folders(folder_path, recursion_depth)
     
     # Join the result list and replace backslashes with forward slashes
     result = join_list(tf_folders)
@@ -79,5 +96,5 @@ if __name__ == "__main__":
     elif tf_action == "destroy":
         print(json.dumps(result[::-1]))   
     else:
-        print("Error: Wrong action specified. Allowed values are 'apply' or 'destroy'.")
+        print("Error: Wrong action specified. Allowed values are 'plan', 'apply', 'destroy'.")
         sys.exit(1)
