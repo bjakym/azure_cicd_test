@@ -2,11 +2,13 @@ name: 'Manage Infra By Dispatch'
 
 on:
   workflow_dispatch:
+    inputs:
       # Working directory input from user.
       directory:
         description: Choose root directory to run TF apply/destroy
         default: "infra/kstp"
         required: true
+        type: string
       action:
         description: Choose Terraform Action
         default: "apply"
