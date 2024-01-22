@@ -7,7 +7,6 @@ on:
         description: Choose root directory to run TF apply/destroy
         default: "infra/kstp"
         required: true
-        type: string
       action:
         description: Choose Terraform Action
         default: "apply"
