@@ -37,7 +37,6 @@ jobs:
     # Perform Ordering of TF folders
     - name: Perform Ordering
       id: tfdirs_order
-      working-directory: .github/scripts
       run: |
         ordered_dirs=$(python .github/scripts/tf_order_by_action.py "${{ github.event.inputs.action }}" "${{ github.event.inputs.directory }}")
         echo "ordered_dirs=${ordered_dirs}"
