@@ -1,0 +1,84 @@
+name: 'Terraform Flow'
+
+on:
+  workflow_call:
+    inputs:
+      folders_string:
+        required: true
+        type: string
+      tf_action:
+        required: true
+        type: string
+        default: "apply"
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  TF_LOG: INFO
+
+jobs:
+  prepare_matrix:
+    name: 'Prepare Matrix'
+    runs-on: azure-cicd
+    outputs:
+      dirs: ${{ steps.set_matrix.outputs.dirs }}
+    steps:
+      # Set matrix of jobs to run Terraform in parallel for every folder in matrix
+      - name: Set matrix for ${{ inputs.folders_string }}
+        id: set_matrix
+        run: |
+          matrix_arr=(${{ inputs.folders_string }})
+          matrix_arr_json="["
+          for dir in ${matrix_arr[@]}; do
+            matrix_arr_json+="\"${dir}\","
+          done
+          matrix_arr_json="${matrix_arr_json%,}]"
+          echo "dirs=${matrix_arr_json}"
+          echo "dirs=${matrix_arr_json}" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: 'Run Terraform'
+    needs: [prepare_matrix]
+    runs-on: azure-cicd
+
+    strategy:
+      matrix:
+        tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
+
+    steps:
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform init
+        working-directory: ${{ matrix.tf_folder }}
+        id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+          STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+          CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+        run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+
+      # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
+      - name: Terraform validate
+        working-directory: ${{ matrix.tf_folder }}
+        id: validate
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: terraform validate -no-color
+
+      # On push to main, build or change infrastructure according to Terraform configuration files
+      - name: Terraform ${{ inputs.tf_action }}
+        working-directory: ${{ matrix.tf_folder }}
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: terraform ${{ inputs.tf_action }} -auto-approve

@@ -61,7 +61,7 @@ jobs:
       id: tfdirs_order
       working-directory: .github/scripts
       run: |
-        ordered_dirs=$(python tf_folders_order.py "${{ needs.detect_tf_folders.outputs.tf_folders }}")
+        ordered_dirs=$(python tf_order_by_change.py "${{ needs.detect_tf_folders.outputs.tf_folders }}")
         echo "ordered_dirs=${ordered_dirs}"
         echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
 

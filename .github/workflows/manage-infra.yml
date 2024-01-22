@@ -1,0 +1,57 @@
+name: 'Manage Infra By Dispatch'
+
+on:
+  workflow_dispatch:
+      # Working directory input from user.
+      directory:
+        description: Choose root directory to run TF apply/destroy
+        default: "infra/kstp"
+        required: true
+        type: string
+      action:
+        description: Choose Terraform Action
+        default: "apply"
+        required: true
+        type: choice
+        options:
+          - apply
+          - destroy
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  order_tf_folders:
+    name: 'Order TF Folders'
+    runs-on: azure-cicd
+    outputs:
+      ordered_tf_folders: ${{ steps.tfdirs_order.outputs.ordered_dirs }}
+
+    steps:
+    # Checkout the repository
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Perform Ordering of TF folders
+    - name: Perform Ordering
+      id: tfdirs_order
+      working-directory: .github/scripts
+      run: |
+        ordered_dirs=$(python .github/scripts/tf_order_by_action.py "${{ github.event.inputs.action }}" "${{ github.event.inputs.directory }}")
+        echo "ordered_dirs=${ordered_dirs}"
+        echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
+
+  terraform_flow:
+    name: 'Execute Terraform ${{ github.event.inputs.action }}'
+    needs: [order_tf_folders]
+    strategy:
+      matrix:
+        folders_string_list: ${{ fromJSON(needs.order_tf_folders.outputs.ordered_tf_folders) }}
+      fail-fast: true
+      max-parallel: 1
+    uses: ./.github/workflows/terraform-flow.yml
+    with:
+      folders_string: ${{ matrix.folders_string_list }}
+      tf_action: ${{ github.event.inputs.action }}
+    secrets: inherit
