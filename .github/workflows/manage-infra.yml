@@ -47,7 +47,7 @@ jobs:
 
   # Execute reusable workflow for every group of TF folders and action specified
   terraform_flow:
-    name: 'Execute Terraform ${{ github.event.inputs.action }}'
+    name: 'Execute Terraform'
     needs: [order_tf_folders]
     strategy:
       matrix:

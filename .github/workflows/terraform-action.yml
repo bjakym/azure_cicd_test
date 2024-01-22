@@ -84,6 +84,6 @@ jobs:
         run: |
           if [ "${{ inputs.tf_action }}" == "plan" ]; then
             terraform ${{ inputs.tf_action }}
-          else:
+          else
             terraform ${{ inputs.tf_action }} -auto-approve
           fi
