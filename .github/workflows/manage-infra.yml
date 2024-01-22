@@ -51,7 +51,7 @@ jobs:
         folders_string_list: ${{ fromJSON(needs.order_tf_folders.outputs.ordered_tf_folders) }}
       fail-fast: true
       max-parallel: 1
-    uses: ./.github/workflows/terraform-flow.yml
+    uses: ./.github/workflows/terraform-apply-destroy.yml
     with:
       folders_string: ${{ matrix.folders_string_list }}
       tf_action: ${{ github.event.inputs.action }}
