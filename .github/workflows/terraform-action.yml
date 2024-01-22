@@ -1,4 +1,4 @@
-name: 'Terraform Apply/Destroy'
+name: 'Terraform Plan/Apply/Destroy'
 
 on:
   workflow_call:
@@ -9,7 +9,7 @@ on:
       tf_action:
         required: true
         type: string
-        default: "apply"
+        default: "plan"
 
 defaults:
   run:
@@ -73,7 +73,7 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         run: terraform validate -no-color
 
-      # On push to main, build or change infrastructure according to Terraform configuration files
+      # Run specified terraform action i.e. plan/apply/destroy
       - name: Terraform ${{ inputs.tf_action }}
         working-directory: ${{ matrix.tf_folder }}
         env:

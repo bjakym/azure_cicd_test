@@ -9,12 +9,14 @@ on:
         default: "infra/kstp"
         required: true
         type: string
+      # Terraform action to execute plan/apply/destroy
       action:
         description: Choose Terraform Action
-        default: "apply"
+        default: "plan"
         required: true
         type: choice
         options:
+          - plan
           - apply
           - destroy
 
@@ -23,6 +25,7 @@ defaults:
     shell: bash
 
 jobs:
+  # Order TF folders to follow specific dependencies
   order_tf_folders:
     name: 'Order TF Folders'
     runs-on: azure-cicd
@@ -34,7 +37,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    # Perform Ordering of TF folders
+    # Perform Ordering (using python script) of TF folders based on the specified action
     - name: Perform Ordering
       id: tfdirs_order
       run: |
@@ -42,6 +45,7 @@ jobs:
         echo "ordered_dirs=${ordered_dirs}"
         echo "ordered_dirs=${ordered_dirs}" >> $GITHUB_OUTPUT
 
+  # Execute reusable workflow for every group of TF folders and action specified
   terraform_flow:
     name: 'Execute Terraform ${{ github.event.inputs.action }}'
     needs: [order_tf_folders]
@@ -50,7 +54,7 @@ jobs:
         folders_string_list: ${{ fromJSON(needs.order_tf_folders.outputs.ordered_tf_folders) }}
       fail-fast: true
       max-parallel: 1
-    uses: ./.github/workflows/terraform-apply-destroy.yml
+    uses: ./.github/workflows/terraform-action.yml
     with:
       folders_string: ${{ matrix.folders_string_list }}
       tf_action: ${{ github.event.inputs.action }}

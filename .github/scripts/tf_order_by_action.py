@@ -74,7 +74,7 @@ if __name__ == "__main__":
     result = join_list(tf_folders)
 
     # Print the result as JSON based on the Terraform action
-    if tf_action == "apply":
+    if tf_action == "plan" or tf_action == "apply":
         print(json.dumps(result))
     elif tf_action == "destroy":
         print(json.dumps(result[::-1]))   
