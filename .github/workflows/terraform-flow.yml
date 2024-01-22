@@ -44,6 +44,11 @@ jobs:
         tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
 
     steps:
+      # Checkout the repository if it's running on github runner 'ubuntu-latest', skip for self-hosted one
+      - name: Checkout
+        if: ${{ vars.RUNNER == 'ubuntu-latest' }}
+        uses: actions/checkout@v2
+        
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         working-directory: ${{ matrix.tf_folder }}
