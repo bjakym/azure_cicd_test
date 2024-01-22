@@ -50,7 +50,7 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout
-        if: ${{ vars.RUNNER }} == "ubuntu-latest"
+        if: ${{ (vars.RUNNER == "ubuntu-latest") }}
         uses: actions/checkout@v2
         
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
