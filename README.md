@@ -1,8 +1,8 @@
-# Sample project of usage Terraform Azure CI/CD with remote backend 
+# Simple Azure CI/CD project with terraform remote backend 
 
 ## Description
 
-This asset can be used as a sample of managing Azure resources using CI/CD approach. It's utilizing terraform and github actions. State files are stored in remote backend.
+This asset can be used as a sample project for managing Azure resources using CI/CD approach. It's utilizing terraform and github actions. State files are stored in remote backend.
 
 ## Procedure
 
