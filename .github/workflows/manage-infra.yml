@@ -6,7 +6,7 @@ on:
       # Working directory input from user.
       directory:
         description: Choose root directory to run TF apply/destroy
-        default: "infra/kstp"
+        default: "projects/EU1"
         required: true
         type: string
       # Terraform action to execute plan/apply/destroy
