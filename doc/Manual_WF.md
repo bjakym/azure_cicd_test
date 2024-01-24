@@ -2,6 +2,8 @@
 
 ## Manual Workflow (On Dispatch)
 
+- Manage Infra By Dispatch
+
 ```mermaid
 flowchart TD
 %% https://en.wikipedia.org/wiki/Flowchart
