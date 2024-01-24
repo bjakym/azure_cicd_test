@@ -121,7 +121,7 @@ jobs:
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Folder: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
             `;
 
             github.issues.createComment({
@@ -142,7 +142,10 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        run: terraform apply -auto-approve
+        run: |
+          echo 'result<<EOF' >> $GITHUB_OUTPUT
+          terraform apply -auto-approve >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
       # Add a comment to pull requests with plan results
       - name: Add Apply Comment
@@ -163,7 +166,7 @@ jobs:
 
             </details>
 
-            *Applier: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
+            *Reviewer: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Folder: \`${{ matrix.tf_folder }}\`*
             `;
 
             github.issues.createComment({
