@@ -1,4 +1,4 @@
-# Simple Azure CI/CD project with terraform remote backend 
+# Simple Azure CI/CD project on terraform
 
 ## Description
 
