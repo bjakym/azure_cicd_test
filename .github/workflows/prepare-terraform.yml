@@ -7,6 +7,9 @@ on:
   push:
     paths:
       - 'projects/EU1/**'
+    branches-ignore:
+      - master
+      - main
   pull_request:
     paths:
       - 'projects/EU1/**'
