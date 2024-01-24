@@ -11,7 +11,6 @@ This asset can be used as a sample of managing Azure resources using CI/CD appro
 flowchart TD
 %% https://en.wikipedia.org/wiki/Flowchart
 %% https://mermaid.js.org/syntax/flowchart.html
-flowchart TD
 A7 --> B["PR Flow"]
 B8 --> C["Merge Flow"]
 
