@@ -6,5 +6,5 @@ This asset can be used as sample project for managing Azure resources using CI/C
 
 ## Procedure
 
-- [Automatic CI/CD Workflows (On Push/Pull Request/Merge Branch)](doc/Automatic_WF.md)
-- [Manual Workflows (On Dispatch)](doc/Manual_WF.md)
+- [Automatic CI/CD Workflows (On Push/Pull Request)](doc/Automatic_WF.md)
+- [Manual Workflow (On Dispatch)](doc/Manual_WF.md)

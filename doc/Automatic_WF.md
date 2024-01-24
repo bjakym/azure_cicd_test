@@ -1,6 +1,6 @@
 
 
-## Automatic WorkFlows
+## Automatic CI/CD Workflows (On Push/Pull Request)
 
 ```mermaid
 flowchart TD
