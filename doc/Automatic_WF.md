@@ -6,10 +6,8 @@
 flowchart TD
 %% https://en.wikipedia.org/wiki/Flowchart
 %% https://mermaid.js.org/syntax/flowchart.html
-A["Push Flow"] --> B["PR Flow"] 
 
 subgraph B["PR Flow"]
-    direction LR
     B1[Pull Request] --> B2(Assign Reviewer)
     B2 --> B3(Run TF plan)
     B3 --> B4(Add result of every\nTF plan as comment in PR)
