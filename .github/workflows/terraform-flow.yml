@@ -134,10 +134,41 @@ jobs:
       # On push to main, build or change infrastructure according to Terraform configuration files
       - name: Terraform Apply
         working-directory: ${{ matrix.tf_folder }}
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        id: apply
+        # if github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: github.event.review.state == 'APPROVED'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         run: terraform apply -auto-approve
+
+      # Add a comment to pull requests with plan results
+      - name: Add Apply Comment
+        if: github.event.review.state == 'APPROVED'
+        id: apply_comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `
+            #### Terraform Apply 📖\`${{ steps.apply.outcome }}\`
+
+            <details><summary>Show Apply</summary>
+
+            \`\`\`
+            ${{ steps.apply.outputs.result }}
+            \`\`\`
+
+            </details>
+
+            *Applier: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.tf_folder }}\`, Workflow: \`${{ github.workflow }}\`*
+            `;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
