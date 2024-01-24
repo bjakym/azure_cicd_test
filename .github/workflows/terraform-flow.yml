@@ -144,7 +144,7 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         run: |
           echo 'result<<EOF' >> $GITHUB_OUTPUT
-          terraform apply -auto-approve >> $GITHUB_OUTPUT
+          terraform apply -no-color -auto-approve >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
 
       # Add a comment to pull requests with plan results
