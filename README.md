@@ -60,10 +60,10 @@ flowchart TD
   os_type .-> Sap[sap_config]
   os_type .-> Windows[windows_config]
   Linux .-> Report_Execution
-  Aix.-> Report_Execution
-  Windows.-> Report_Execution
-  Oracle.-> Report_Execution
-  Sap.-> Report_Execution
+  Aix .-> Report_Execution
+  Windows .-> Report_Execution
+  Oracle .-> Report_Execution
+  Sap .-> Report_Execution
 ```
 
 <br>

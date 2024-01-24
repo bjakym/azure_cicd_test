@@ -60,8 +60,16 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
           STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
-          CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
-        run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+        run: |
+          CONTAINER_ENV=$(echo "${{ matrix.tf_folder }}" | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')
+          CONTAINER_NAME="${CONTAINER_ENV}-kstp-tf-state-blob"
+          LOCK_KEY_PATH=$(echo "${{ matrix.tf_folder }}" | cut -d'/' -f3-)
+          LOCK_KEY_TFSTATE="${LOCK_KEY_PATH}/terraform.tfstate"
+          terraform init -upgrade -lock=false -reconfigure \
+            -backend-config="storage_account_name=$STORAGE_ACCOUNT" \
+            -backend-config="container_name=${CONTAINER_NAME}" \
+            -backend-config="resource_group_name=$RESOURCE_GROUP" \
+            -backend-config="key=${LOCK_KEY_TFSTATE}"
 
       # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
       - name: Terraform Validate
