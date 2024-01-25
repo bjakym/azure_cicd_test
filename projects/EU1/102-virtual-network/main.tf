@@ -2,6 +2,7 @@
 # CONFIGURATION
 ##################################################################################
 
+
 # Create virtual network
 resource "azurerm_virtual_network" "kstp_network" {
   name                = var.network
