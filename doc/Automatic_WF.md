@@ -7,28 +7,25 @@ flowchart TD
 %% https://en.wikipedia.org/wiki/Flowchart
 %% https://mermaid.js.org/syntax/flowchart.html
 
-subgraph B["PR Flow"]
-    B1[Pull Request] --> B2(Assign Reviewer)
-    B2 --> B3(Run TF plan)
-    B3 --> B4(Add result of every\nTF plan as comment in PR)
-    B4 --> B5{Approved by Reviewer?}
-    B5 .-> |No| B6(Stop)
-    B5 .-> |Yes| B7(Run TF Apply)
-    B7 --> B8(Add result of every\nTF apply as comment in PR)
-    B8 --> B9{Results of Apply ?}
-    B9 .-> |KO| B11(Close PR without merging)
-    B9 .-> |OK| B10(Merge code to\nmain branch)  
-end
-
-subgraph A["Push Flow"]
-    A0[Start] --> A1(Push Code)
-    A1 --> A2(Detect folders of\nchanged TF files)
-    A2 --> A3(Order folders based on\nresource dependencies)
-    A3 --> A4(Initialize TF backend)
-    A4 --> A5(Validate TF code)
-    A5 --> A6{Errors ?}
-    A6 .-> |No| A8(Go To PR Flow)
-    A6 .-> |Yes| A7(Fix Errors)
-    A7 --> A1
-end
+    A0[Start] --> A1(Push Code To Branch)
+    A1 --> A2{Is Pull Request\nfor this branch open ?}
+    A2 .-> |No| A3(Open Pull Request)
+    A3 --> A4(WF Trigger on PR event)
+    A2 .-> |Yes| A4
+    A4 --> A5(Detect folders of\nchanged TF files)
+    A5 --> A6(Initialize TF backend)
+    A6 --> A7(Validate TF code)
+    A7 --> A8{Errors ?}
+    A8 .-> |Yes| A9(Fix Errors)
+    A9 --> A1
+    A8 .-> |No| A10(Run TF plan)
+    A10 .-> A8
+    A10 --> A11(Add result of every\nTF plan as comment in PR)
+    A11 --> A12(Assign Reviewer)
+    A12 --> A13{Approved by Reviewer?}
+    A13 .-> |Yes| A14(Run TF Apply)
+    A13 .-> |No| A9(Fix Errors)
+    A14 .-> A8
+    A14 --> A15(Add result of every\nTF apply as comment in PR)
+    A15 --> A16(Merge code to\nmain branch)
 ```
