@@ -1,6 +1,6 @@
 
 
-## Automatic CI/CD Workflows (On Push/Pull Request)
+## Automatic CI/CD Workflows (On Pull Request)
 
 ```mermaid
 flowchart TD
@@ -13,7 +13,8 @@ flowchart TD
     A3 --> A4(WF Trigger on PR event)
     A2 .-> |Yes| A4
     A4 --> A5(Detect folders of\nchanged TF files)
-    A5 --> A6(Initialize TF backend)
+    A5 --> B6(Order folders based\nresource dependencies)
+    B6 --> A6(Initialize TF backend)
     A6 --> A7(Validate TF code)
     A7 --> A8{Errors ?}
     A8 .-> |Yes| A9(Fix Errors)
@@ -27,5 +28,5 @@ flowchart TD
     A13 .-> |No| A9(Fix Errors)
     A14 .-> A8
     A14 --> A15(Add result of every\nTF apply as comment in PR)
-    A15 --> A16(Merge code to\nmain branch)
+    A15 --> A16(Merge code to\nmain branch)  
 ```
