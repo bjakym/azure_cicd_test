@@ -11,7 +11,7 @@ data "azurerm_network_security_group" "app_nsg" {
 ##################################################################################
 # Create db subnet within virtual network
 resource "azurerm_subnet" "app_subnet" {
-  name                 = "app-subnet-1"
+  name                 = "app-subnet"
   resource_group_name  = var.res_group
   virtual_network_name = var.network
   address_prefixes     = ["10.0.1.0/24"]
