@@ -44,9 +44,8 @@ jobs:
         tf_folder: ${{ fromJSON(needs.prepare_matrix.outputs.dirs) }}
 
     steps:
-      # Checkout the repository if it's running on github runner 'ubuntu-latest', skip for self-hosted one
+      # Checkout the repository
       - name: Checkout
-        if: ${{ vars.RUNNER == 'ubuntu-latest' }}
         uses: actions/checkout@v2
         
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
@@ -73,6 +72,7 @@ jobs:
 
       # Run a terraform validate to check the syntax and configuration based on the core syntax of Terraform code
       - name: Terraform Validate
+        if: github.event_name == 'pull_request'
         working-directory: ${{ matrix.tf_folder }}
         id: validate
         env:
@@ -86,7 +86,7 @@ jobs:
 
       # Run a terraform plan for pull requests only
       - name: Terraform Plan
-        # if github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         working-directory: ${{ matrix.tf_folder }}
         id: plan
         env:
@@ -135,7 +135,6 @@ jobs:
       - name: Terraform Apply
         working-directory: ${{ matrix.tf_folder }}
         id: apply
-        # if github.ref == 'refs/heads/master' && github.event_name == 'push'
         if: github.event.review.state == 'APPROVED'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}

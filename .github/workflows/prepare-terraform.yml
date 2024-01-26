@@ -3,13 +3,7 @@ name: 'Prepare Terraform'
 # on:
 #   workflow_dispatch:
 
-on: 
-  # push:
-  #   paths:
-  #     - 'projects/EU1/**'
-  #   branches-ignore:
-  #     - master
-  #     - main
+on:
   pull_request:
     paths:
       - 'projects/EU1/**'
