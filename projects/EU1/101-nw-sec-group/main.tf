@@ -8,7 +8,7 @@ resource "azurerm_network_security_group" "app_nsg" {
   location            = var.location
   resource_group_name = var.res_group
 
-  We are creating a rule to allow traffic on port 80
+  # We are creating a rule to allow traffic on port 80
   security_rule {
     name                       = "Allow_HTTP"
     priority                   = 200
